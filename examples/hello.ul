@@ -1,0 +1,2 @@
+include("console.so");
+console.println("Hello, World!");

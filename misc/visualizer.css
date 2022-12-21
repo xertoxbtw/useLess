@@ -1,0 +1,32 @@
+body
+{
+	display: flex;
+	justify-content:center;
+}
+
+node
+{
+	display: flex;
+	flex-direction:column;
+	justify-content:center;
+	align-items:center;
+	border:1px solid red;
+}
+
+value
+{
+	display: block;
+	font-weight:600;
+}
+
+type
+{
+	display: block;
+	font-weight:100;
+}
+
+children
+{
+	display: flex;
+	flex-direction:row;
+}

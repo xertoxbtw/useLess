@@ -1,0 +1,105 @@
+#include "lexer.h"
+#include "runtime.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Todo: Complete Key List
+char keys[] = {'=', ';', '(', ')', '{', '}', ','};
+
+char *
+remove_trivial_chars (const char *buffer, u64 *len)
+{
+    u64 buffer_len = strlen (buffer);
+    u64 index = 0;
+    char *tmp = xcalloc (buffer_len + 1, sizeof (char));
+    bool isQuoted = false;
+    for (u64 i = 0; i < buffer_len; i++)
+    {
+
+        if (buffer[ i ] == '"')
+        {
+            isQuoted = !isQuoted;
+        }
+        if (buffer[ i ] != '\t' && buffer[ i ] != '\n' && buffer[ i ] != ' ')
+        {
+            tmp[ index++ ] = buffer[ i ];
+        }
+        else if (buffer[ i ] == ' ' && isQuoted)
+            tmp[ index++ ] = buffer[ i ];
+    }
+
+    *len = index + 1;
+    return tmp;
+}
+
+void
+lexer_add (lexer_result *result, char *str, lexer_type type)
+{
+    if (result->entries != NULL)
+        result->entries = xreallocarray (result->entries, result->count + 1,
+                                         sizeof (lexer_entry));
+    else
+        result->entries = xcalloc (1, sizeof (lexer_entry));
+
+    lexer_entry *current = &result->entries[ result->count++ ];
+    current->content = str;
+    current->type = type;
+}
+
+lexer_result *
+lexer (const char *buffer_input)
+{
+    lexer_result *result = xcalloc (1, sizeof (lexer_result));
+    u64 len = 0;
+    char *buffer = remove_trivial_chars (buffer_input, &len);
+
+    u64 start_index = 0;
+    bool isQuoted = false;
+    for (u64 i = 0; i < len; i++)
+    {
+        if (buffer[ i ] == '"')
+        {
+            isQuoted = !isQuoted;
+        }
+        for (u32 key = 0; key < sizeof (keys) / sizeof (char); key++)
+        {
+            if (buffer[ i ] == keys[ key ] && !isQuoted)
+            {
+                u64 local_len = i - start_index;
+                if (local_len != 0)
+                {
+                    char *tmp = xcalloc (local_len + 1, sizeof (char));
+                    strncpy (tmp, buffer + start_index, local_len);
+
+					// Todo 
+                    if (tmp[ 0 ] == '"')
+                        lexer_add (result, tmp, lexer_string);
+                    else
+                        lexer_add (result, tmp, lexer_symbol);
+                }
+
+                // Add Key
+                char *key_buffer = xcalloc (2, sizeof (char));
+                key_buffer[ 0 ] = keys[ key ];
+                lexer_add (result, key_buffer, lexer_key);
+
+                start_index = i + 1;
+            }
+        }
+    }
+    free (buffer);
+    return result;
+}
+
+void
+lexer_free (lexer_result *result)
+{
+    for (u32 i = 0; i < result->count; i++)
+    {
+        free (result->entries[ i ].content);
+    }
+    free (result->entries);
+    free (result);
+}

@@ -1,0 +1,6 @@
+greet = function (name, age)
+{
+	print("Hello");
+}
+
+greet("bill", 16);
