@@ -22,4 +22,5 @@ typedef struct
 } lexer_result;
 
 lexer_result *lexer (const char *buffer);
+lexer_result *lexer_process(lexer_result *in);
 void lexer_free (lexer_result *result);

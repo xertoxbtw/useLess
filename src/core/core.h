@@ -49,6 +49,28 @@ typedef struct node_t
     u32 children_count;
 } node_t;
 
+typedef enum
+{
+    symbol_value,
+    symbol_function
+} symbol_type;
+
+typedef struct symbol_t
+{
+    char *label;
+    node_t *node;
+    symbol_type type;
+} symbol_t;
+
+typedef struct scope_t
+{
+    symbol_t **symbols;
+    u32 symbols_count;
+
+    struct scope_t *previous;
+    struct scope_t *next;
+} scope_t;
+
 node_t *node_insert (node_t *parent, node_t *node);
 node_t *node_new (node_t *parent, char *value);
 node_t *node_new_type (node_t *parent, char *value, node_type type);
@@ -58,4 +80,11 @@ node_t *node_new_list (node_t *parent, node_t **children, u32 children_count);
 node_t *node_new_symbol (node_t *parent, char *symbol);
 node_t *node_new_internal (node_t *parent, void (*func) ()); // Todo
 
-void node_remove(node_t *node);
+node_t *node_evaluate (scope_t *scope, node_t *node);
+void node_remove (node_t *node);
+
+symbol_t *symbol_create (char *label, node_t *node, symbol_type type);
+void symbol_delete (symbol_t *sym);
+
+scope_t *scope_push (scope_t *root);
+void scope_pop (scope_t *root);

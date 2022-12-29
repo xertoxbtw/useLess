@@ -29,7 +29,7 @@ node_insert (node_t *parent, node_t *node)
 node_t *
 node_new (node_t *parent, char *value)
 {
-	return NULL;
+    return NULL;
 }
 
 node_t *
@@ -56,8 +56,8 @@ node_new_string (node_t *parent, char *string)
     node->type = type_string;
 
     u32 len = strlen (string);
-    node->value.string = xcalloc (len + 1, sizeof (char));
-    strncpy (node->value.string, string, len);
+    node->value.string = xcalloc (len, sizeof (char));
+    strncpy (node->value.string, string + 1, len - 2);
 
     return node_insert (parent, node);
 }

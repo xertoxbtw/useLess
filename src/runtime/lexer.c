@@ -6,7 +6,7 @@
 #include <string.h>
 
 // Todo: Complete Key List
-char keys[] = {'=', ';', '(', ')', '{', '}', ','};
+char keys[] = {'=', ';', '(', ')', '{', '}', '[', ']', ',', '%', '&'};
 
 char *
 remove_trivial_chars (const char *buffer, u64 *len)
@@ -14,20 +14,30 @@ remove_trivial_chars (const char *buffer, u64 *len)
     u64 buffer_len = strlen (buffer);
     u64 index = 0;
     char *tmp = xcalloc (buffer_len + 1, sizeof (char));
-    bool isQuoted = false;
+    bool isQuoted = false, commented = false;
     for (u64 i = 0; i < buffer_len; i++)
     {
-
-        if (buffer[ i ] == '"')
+        if (!commented && !isQuoted && i + 1 < buffer_len - 1
+            && buffer[ i ] == '/' && buffer[ i + 1 ] == '/')
         {
-            isQuoted = !isQuoted;
+            commented = true;
         }
-        if (buffer[ i ] != '\t' && buffer[ i ] != '\n' && buffer[ i ] != ' ')
+        if (!commented)
         {
-            tmp[ index++ ] = buffer[ i ];
+            if (buffer[ i ] == '"')
+            {
+                isQuoted = !isQuoted;
+            }
+            if (buffer[ i ] != '\t' && buffer[ i ] != '\n'
+                && buffer[ i ] != ' ')
+            {
+                tmp[ index++ ] = buffer[ i ];
+            }
+            else if (buffer[ i ] == ' ' && isQuoted)
+                tmp[ index++ ] = buffer[ i ];
         }
-        else if (buffer[ i ] == ' ' && isQuoted)
-            tmp[ index++ ] = buffer[ i ];
+        else if (buffer[ i ] == '\n')
+            commented = false;
     }
 
     *len = index + 1;
@@ -73,7 +83,7 @@ lexer (const char *buffer_input)
                     char *tmp = xcalloc (local_len + 1, sizeof (char));
                     strncpy (tmp, buffer + start_index, local_len);
 
-					// Todo 
+                    // TODO: Simple Typecheck
                     if (tmp[ 0 ] == '"')
                         lexer_add (result, tmp, lexer_string);
                     else
@@ -90,6 +100,41 @@ lexer (const char *buffer_input)
         }
     }
     free (buffer);
+    return result;
+}
+
+lexer_result *
+lexer_process (lexer_result *in)
+{
+
+    lexer_result *result = xcalloc (1, sizeof (lexer_result));
+
+    for (u32 i = 0; i < in->count; i++)
+    {
+        if (in->entries[ i ].type == lexer_key)
+        {
+            if (in->entries[ i ].content[ 0 ] == '{'
+                || in->entries[ i ].content[ 0 ] == '[')
+            {
+                in->entries[ i ].content[ 0 ] = '(';
+                lexer_add (result, in->entries[ i ].content,
+                           in->entries[ i ].type);
+            }
+            else if (in->entries[ i ].content[ 0 ] == '}'
+                     || in->entries[ i ].content[ 0 ] == ']')
+            {
+                in->entries[ i ].content[ 0 ] = ')';
+                lexer_add (result, in->entries[ i ].content,
+                           in->entries[ i ].type);
+            }
+            else
+                lexer_add (result, in->entries[ i ].content,
+                           in->entries[ i ].type);
+        }
+        else
+            lexer_add (result, in->entries[ i ].content, in->entries[ i ].type);
+    }
+
     return result;
 }
 

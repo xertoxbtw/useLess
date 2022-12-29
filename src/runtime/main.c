@@ -1,3 +1,4 @@
+#include "lexer.h"
 #include "runtime.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,16 +15,21 @@ main (const int argc, const char **argv)
     fread (buffer, size, size, file);
     fclose (file);
 
-    lexer_result *result = lexer (buffer);
+    lexer_result *result_1 = lexer (buffer);
+	lexer_result *result_2 = lexer_process(result_1);
     free (buffer);
 
-	node_t * root = parser(result);
+	node_t * root = parser(result_2);
+
+	//node_evaluate(NULL, root);
 	
 	file = fopen("tree.html", "w");
     parser_visualize (file, root);
-	fclose(file);
-   
+	fclose(file); 
 
-    lexer_free (result);
+	/*
+    lexer_free (result_1);
+    lexer_free (result_2);
+	*/
     return 0;
 }

@@ -1,7 +1,7 @@
 CC := gcc
 RUNTIME-FILES := ./src/runtime/*.c
-CORE-FILES := ./src/core/core.c ./src/core/node.c
-CFLAGS := -g
+CORE-FILES := ./src/core/core.c ./src/core/node.c ./src/core/evaluate.c
+CFLAGS := -O3
 SANITIZERS :=-fsanitize=address -fanalyzer
 
 build-runtime:
