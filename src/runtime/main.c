@@ -1,35 +1,49 @@
 #include "lexer.h"
 #include "runtime.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 i32
 main (const int argc, const char **argv)
 {
-    FILE *file = fopen (argv[ 1 ], "r");
-    fseek (file, 0, SEEK_END);
-    u32 size = ftell (file);
-    fseek (file, 0, SEEK_SET);
+    runtime_t *runtime = runtime_init ();
 
-    char *buffer = calloc (size + 1, sizeof (char));
-    fread (buffer, size, size, file);
-    fclose (file);
+    const char *file_path = NULL;
 
-    lexer_result *result_1 = lexer (buffer);
-	lexer_result *result_2 = lexer_process(result_1);
-    free (buffer);
+    for (u32 i = 1; i < argc; i++)
+    {
+        if (strncmp ("--", argv[ i ], 2) == 0)
+        {
+            const char *arg = argv[ i ] + 2;
+            if (strcmp ("lexer", arg) == 0)
+            {
+                runtime->option_output_lexer = true;
+            }
+            else if (strcmp ("parser", arg) == 0)
+            {
+                runtime->option_output_parser = true;
+            }
+        }
+        else if (!file_path)
+        {
+            file_path = argv[ i ];
+        }
+        else
+        {
+            ERROR ("No valid argument was passed");
+        }
+    }
 
-	node_t * root = parser(result_2);
+    if (file_path)
+    {
+        runtime_execute_file (runtime, file_path);
+    }
+    else
+    {
+        ERROR ("No file path was passed");
+    }
 
-	//node_evaluate(NULL, root);
-	
-	file = fopen("tree.html", "w");
-    parser_visualize (file, root);
-	fclose(file); 
-
-	/*
-    lexer_free (result_1);
-    lexer_free (result_2);
-	*/
+    free (runtime);
     return 0;
 }

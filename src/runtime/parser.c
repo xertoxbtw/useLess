@@ -4,7 +4,7 @@
 #include <string.h>
 
 node_t *
-parser (lexer_result *lexer)
+parser (lexer_result_t *lexer)
 {
     node_t *root = node_new_list (NULL, NULL, 0);
     node_t *current = node_new_list (root, NULL, 0);
@@ -78,5 +78,5 @@ parser_visualize (FILE *f, node_t *root)
         "<!doctype html><html><head><link rel='stylesheet' "
         "href='misc/visualizer.css'></head><body class='tree-diagram'><ul>");
     parser_visualize_node (f, root);
-    fprintf (f, "</ul></body></html>");
+    fprintf (f, "</ul></body></html>\n");
 }

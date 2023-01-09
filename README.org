@@ -1,6 +1,5 @@
 #+TITLE:useLess
 
 * Todo
-  - Move functions that are passed as argument into a new list (lexer_process)
+  - Fix lexer_process when using {}
   - Translate = key to assign(...)
-  - Free lexer_result

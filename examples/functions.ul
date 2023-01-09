@@ -1,0 +1,28 @@
+normal = function(arg_a, arg_b)
+{
+console.println(string.format("Argument A: ~A\nArgument B: ~A", arg_a, arg_b));
+}
+
+reference = function (arg_a, &arg_b)
+{
+arg_a = 5;
+arg_b = 5;
+}
+
+rest = function (arg_a, %arg_b)
+{
+console.println(arg_a);
+dolist(i, arg_b)
+console.println(i);
+}
+
+normal("Hello", 6);
+
+value_a = 0;
+value_b = 0;
+reference(value_a, value_b);
+console.println(value_a);
+console.println(value_b);
+
+rest("Hello", "World!");
+rest("Hello", "World", "World", "123", 123);
