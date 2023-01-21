@@ -27,16 +27,8 @@ remove_trivial_chars (const char *buffer, u64 *len)
             {
                 isQuoted = !isQuoted;
             }
-            if (buffer[ i ] == '[' || buffer[ i ] == '{')
-            {
-                tmp[ index++ ] = '(';
-            }
-            else if (buffer[ i ] == ']' || buffer[ i ] == '}')
-            {
-                tmp[ index++ ] = ')';
-            }
-            else if (buffer[ i ] != '\t' && buffer[ i ] != '\n'
-                     && buffer[ i ] != ' ')
+            if (buffer[ i ] != '\t' && buffer[ i ] != '\n'
+                && buffer[ i ] != ' ')
             {
                 tmp[ index++ ] = buffer[ i ];
             }
@@ -126,16 +118,14 @@ lexer_result_t *
 lexer_process (lexer_result_t *in)
 {
     lexer_result_t *result = xcalloc (1, sizeof (lexer_result_t));
-
-
     u32 close_counter = 0;
 
     for (u32 i = 0; i < in->count; i++)
     {
+        /*
         if (in->entries[ i ].type == lexer_key)
         {
-            if (in->entries[ i ].content[ 0 ] == ')'
-                && close_counter != 0)
+            if (in->entries[ i ].content[ 0 ] == ')' && close_counter != 0)
             {
                 close_counter--;
                 char *tmp = xcalloc (2, sizeof (char));
@@ -164,8 +154,8 @@ lexer_process (lexer_result_t *in)
             }
             lexer_add (result, in->entries[ i ].content, in->entries[ i ].type);
         }
-        else
-            lexer_add (result, in->entries[ i ].content, in->entries[ i ].type);
+        else*/
+        lexer_add (result, in->entries[ i ].content, in->entries[ i ].type);
     }
 
     return result;

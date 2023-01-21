@@ -2,29 +2,42 @@
 (defun useless-indent-function ()
   (save-excursion
 	(let ((indent-count 0)
-		  (content (buffer-substring 1 (- (line-beginning-position) 1))))
-	  (dotimes (i (- (length content) 1))
-		(if (and (> i 0) (< i (length content)))
-			(let ((current (substring content (+ i 1) (+ i 2))))
-			  (if (equal current "{")
-				  (setq indent-count (+ indent-count 1))
-				(if (equal current "}")
-					(setq indent-count (- indent-count 1)))))))
-
+		  (content (vconcat (buffer-substring 1 (- (line-beginning-position) 1)))))
+	  (message content)
 	  (beginning-of-line)
 	  (indent-line-to (* indent-count tab-width)))))
 
+(setq useless-keywords '("assign" "console.print" "console.println" "function"))
+
 (setq keywords-font-lock-spec
-	  (cons (regexp-opt '("assign" "console.println" "function"))
+	  (cons (regexp-opt useless-keywords)
 			(list 0 'font-lock-keyword-face 'keep)))
 
 (setq brackets-font-lock-spec
 	  (cons (regexp-opt '("(" ")" "[" "]" "{" "}"))
 			(list 0 'font-lock-bracket-face 'keep)))
-
 (setq comment-font-lock-spec
 	  (cons "#.+"
 			(list 0 'font-lock-comment-face)))
+
+(defun useless-complete-symbol ()
+  "Perform keyword completion on current symbol.
+This uses `ido-mode' user interface for completion."
+  (interactive)
+  (let* (
+         (bds (bounds-of-thing-at-point 'symbol))
+         (p1 (car bds))
+         (p2 (cdr bds))
+         (current-sym
+          (if  (or (null p1) (null p2) (equal p1 p2))
+              ""
+            (buffer-substring-no-properties p1 p2)))
+         result-sym)
+    (when (not current-sym) (setq current-sym ""))
+    (setq result-sym
+          (ido-completing-read "" useless-keywords nil nil current-sym ))
+    (delete-region p1 p2)
+    (insert result-sym)))
 
 (define-derived-mode useless-mode nil "useLess"
   "Major mode for editing .ul files."
@@ -34,5 +47,6 @@
 							   keywords-font-lock-spec
 							   brackets-font-lock-spec
 							   comment-font-lock-spec)))
+
 
 (provide 'useless-mode)

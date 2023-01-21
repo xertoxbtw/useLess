@@ -6,26 +6,35 @@
 node_t *
 parser (lexer_result_t *lexer)
 {
-    node_t *root = node_new_list (NULL, NULL, 0);
-    node_t *current = node_new_list (root, NULL, 0);
+    node_t *root = node_new_list_symbol (NULL);
+    node_t *current = node_new_list_symbol (root);
     for (u32 i = 0; i < lexer->count; i++)
     {
-        // fprintf (stderr, "%s\n", lexer->entries[ i ].content);
         if (lexer->entries[ i ].type == lexer_key)
         {
             if (lexer->entries[ i ].content[ 0 ] == ';')
             {
                 if (i + 1 < lexer->count - 1
                     && lexer->entries[ i + 1 ].type != lexer_key)
-                    current = node_new_list (current->parent, NULL, 0);
+                    current = node_new_list_symbol (current->parent);
+            }
+            else if (lexer->entries[ i ].content[ 0 ] == '{')
+            {
+                current = node_new_list_symbol (current);
             }
             else if (lexer->entries[ i ].content[ 0 ] == '(')
             {
-                current = node_new_list (current, NULL, 0);
+                current = node_new_list_argument (current);
             }
-            else if (lexer->entries[ i ].content[ 0 ] == ')')
+            else if (lexer->entries[ i ].content[ 0 ] == '[')
             {
+                current = node_new_list_data (current);
+            }
 
+            else if (lexer->entries[ i ].content[ 0 ] == '}'
+                     || lexer->entries[ i ].content[ 0 ] == ')'
+                     || lexer->entries[ i ].content[ 0 ] == ']')
+            {
                 current = current->parent;
             }
         }
@@ -54,8 +63,14 @@ parser_visualize_node (FILE *f, node_t *root)
     case type_symbol:
         fprintf (f, "<value>%s</value><type>Symbol</type>", root->value.string);
         break;
-    case type_list:
-        fprintf (f, "<value></value><type>List</type>");
+    case type_list_symbol:
+        fprintf (f, "<value></value><type>List Symbol</type>");
+        break;
+    case type_list_data:
+        fprintf (f, "<value></value><type>List Data</type>");
+        break;
+    case type_list_argument:
+        fprintf (f, "<value></value><type>List Argument</type>");
         break;
     case type_internal:
         // Todo

@@ -1,5 +1,17 @@
 #+TITLE:useLess
 
 * Todo
-  - Fix lexer_process when using {}
-  - Translate = key to assign(...)
+  - Proper error handling
+
+Multiple lexer steps (Rewrite Lexer):
+1. Remove useless characters
+2. Tokenize input file
+3. Check for errors
+4. Process assignment and mathematical keys
+5. Add extra keys that make parsing easier (Move symbol calls into sublist)
+   
+* Standard functions
+| assign (label, value)               | Used to create and assign symbols to a specific value.                                                                                                                                                                                                                                                                      |
+| function (arguments...) {action...} | Is used to define new functions. The first argument list specifies the required arguments that will be passed to the function when called. The second argument list specifies what will happen when the function is called. Both of these lists can be left empty but it is necessary that both exist even when left empty. |
+| console.print (value)               | Prints whatever value was passed.                                                                                                                                                                                                                                                                                           |
+| console.println (value)             | Prints whatever value was passed and adds a newline at the end.                                                                                                                                                                                                                                                             |

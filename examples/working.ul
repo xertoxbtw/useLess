@@ -1,0 +1,2 @@
+assign (introduction, "Hello, World!");
+console.println({string.format(introduction, " :)")});

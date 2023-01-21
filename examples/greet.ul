@@ -1,12 +1,18 @@
 # Greet
 assign(text, [ "Hello", "World" ]);
 
-console.println(text[1]);
-assign(greet, function (name, age)
-{	
-	console.println(string.format("Hello ~A, who is ~A years old.", name, age));
+console.println({text[1]});
+assign(greet, {function (name, age)
+{{
+	console.println({string.format("Hello ~A, who is ~A years old.", name, age)});
 	console.println("NEWLINE");
-});
+	console.println("NEWLINE");
+	console.println("NEWLINE");
+	if (1) {{
+	   	console.println("NEWLINE");
+	   	console.println("NEWLINE");
+	}}
+}}});
 
-greet("Josh", num(15,0), 0);
+greet("Josh", {num(15,0)}, 0);
 greet("Bill", -12.34);
