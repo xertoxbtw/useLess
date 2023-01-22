@@ -2,7 +2,12 @@
 
 * Todo
   - Proper error handling
-
+  - Add type_list_map
+  - Add ; key after brackets close (if key[i+1] != ')' || ',')
+  - Add return flag to scope
+  - When calling function, copy all nodes that are passed
+  - Passing a variable as parameter causes the stored value to not be evaluated
+	
 Multiple lexer steps (Rewrite Lexer):
 1. Remove useless characters
 2. Tokenize input file

@@ -40,7 +40,7 @@ scope_lookup (scope_t *scope, char *label)
             return scope->symbols[ i ];
     }
     if (scope->previous)
-        scope_lookup (scope->previous, label);
+        return scope_lookup (scope->previous, label);
 
     return NULL;
 }

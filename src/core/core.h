@@ -63,6 +63,7 @@ typedef struct scope_t
 {
     symbol_t **symbols;
     u32 symbols_count;
+	bool flag_return;
 
     struct scope_t *previous;
     struct scope_t *next;

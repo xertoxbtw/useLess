@@ -48,6 +48,7 @@ runtime_execute_file (runtime_t *runtime, const char *path)
         scope_t *scope = xcalloc (1, sizeof (scope_t));
         module_load (scope, "modules/std.so");
 
+
         for (u32 i = 0; i < root_node->children_count; i++)
             node_evaluate (&scope, root_node->children[ i ]);
 

@@ -1,2 +1,6 @@
-assign (introduction, "Hello, World!");
-console.println({string.format(introduction, " :)")});
+assign (pow, {function (n)
+{{
+	return ({mul (n, n)});
+}}});
+
+console.println({pow(8)});

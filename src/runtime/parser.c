@@ -42,6 +42,11 @@ parser (lexer_result_t *lexer)
         {
             node_new_string (current, lexer->entries[ i ].content);
         }
+        else if (lexer->entries[ i ].type == lexer_number)
+        {
+            double num = atof (lexer->entries[ i ].content);
+            node_new_number (current, num);
+        }
         else
             node_new_symbol (current, lexer->entries[ i ].content);
     }

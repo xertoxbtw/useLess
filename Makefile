@@ -10,9 +10,7 @@ build-runtime:
 	$(CC) $(RUNTIME-FILES) $(CORE-FILES) -o runtime $(CFLAGS) # $(SANITIZERS)
 
 build-std:
-	$(CC) ./src/modules/std.c $(CORE-FILES) -shared -fPIC -o ./modules/std.so $(CFLAGS) # $(SANITIZERS)
+	$(CC) ./src/modules/std/*.c $(CORE-FILES) -shared -fPIC -o ./modules/std.so $(CFLAGS) # $(SANITIZERS)
 
-
-test: build-runtime
-	./runtime examples/greet.ul --parser > tree.html
-	google-chrome tree.html
+test: all 
+	./runtime test.ul
