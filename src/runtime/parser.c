@@ -30,13 +30,25 @@ parser (lexer_result_t *lexer)
             {
                 current = node_new_list_data (current);
             }
-
+            else if (lexer->entries[ i ].content[ 0 ] == ')'
+                     && lexer->entries[ i + 1 ].content[ 0 ] == ')')
+            {
+                current = current->parent->parent;
+            }
             else if (lexer->entries[ i ].content[ 0 ] == '}'
-                     || lexer->entries[ i ].content[ 0 ] == ')'
-                     || lexer->entries[ i ].content[ 0 ] == ']')
+                     || lexer->entries[ i ].content[ 0 ] == ']'
+                     || lexer->entries[ i ].content[ 0 ] == ')')
             {
                 current = current->parent;
             }
+        }
+        else if (lexer->entries[ i ].type == lexer_symbol
+                 && lexer->entries[ i + 1 ].type == lexer_key
+                 && lexer->entries[ i + 1 ].content[ 0 ] == '('
+                 && current->type == type_list_argument)
+        {
+            current = node_new_list_symbol (current);
+            node_new_symbol (current, lexer->entries[ i ].content);
         }
         else if (lexer->entries[ i ].type == lexer_string)
         {

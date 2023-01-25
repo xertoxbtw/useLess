@@ -70,11 +70,14 @@ node_evaluate_symbol (scope_t **scope, node_t *node)
                     {
                         scope_add (
                             *scope,
-                            symbol_create (sym->node->children[ 1 ]
-                                               ->children[ i ]
-                                               ->value.string,
-                                           node->children[ 1 ]->children[ i ]));
-                    } 
+                            symbol_create (
+                                sym->node->children[ 1 ]
+                                    ->children[ i ]
+                                    ->value.string,
+                                node_evaluate (
+                                    scope,
+                                    node->children[ 1 ]->children[ i ])));
+                    }
 
                     result = node_evaluate (scope, sym->node->children[ 2 ]);
                     *scope = scope_pop (*scope);

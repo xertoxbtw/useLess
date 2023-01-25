@@ -1,6 +1,14 @@
-assign (pow, {function (n)
-{{
-	return ({mul (n, n)});
-}}});
+name = "Test";
+console.println(string.format("Hello, ", name));
+result = 64+3*7+4;
+console.println(result);
 
-console.println({pow(8)});
+counter = 10;
+
+while(counter)
+{
+	console.println("Hello World!");
+	counter = counter - 1 ;
+};
+
+console.println("End");
