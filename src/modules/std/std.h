@@ -8,6 +8,8 @@ node_t *std_while (scope_t **scope, node_t *node);
 node_t *std_if (scope_t **scope, node_t *node);
 node_t *std_return (scope_t **scope, node_t *node);
 node_t *std_typeof (scope_t **scope, node_t *node);
+node_t *std_map (scope_t **scope, node_t *node);
+
 
 node_t *std_console_print (scope_t **scope, node_t *node);
 node_t *std_console_println (scope_t **scope, node_t *node);

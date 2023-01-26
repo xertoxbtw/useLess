@@ -21,6 +21,31 @@ node_insert (node_t *parent, node_t *node)
 }
 
 node_t *
+node_copy (node_t *node)
+{
+    node_t *copy = xcalloc (1, sizeof (node_t));
+    copy->type = node->type;
+    if (node->type == type_string)
+    {
+        u32 len = strlen (node->value.string);
+        char *tmp = xcalloc (len + 1, sizeof (char));
+        strcpy (tmp, node->value.string);
+        copy->value.string = tmp;
+    }
+    else if (node->type == type_number)
+    {
+        copy->value.number = node->value.number;
+    }
+    else
+    {
+        fprintf (stderr, "[TODO] node_copy\n");
+        exit (1);
+    }
+
+    return copy;
+}
+
+node_t *
 node_new (node_t *parent, char *value)
 {
     return node_insert (parent, xcalloc (1, sizeof (node_t)));
@@ -116,7 +141,27 @@ node_new_list_symbol (node_t *parent)
     return node_insert (parent, node);
 }
 
+node_t *
+node_new_list_map (node_t *parent)
+{
+    node_t *node = xcalloc (1, sizeof (node_t));
+    node->type = type_list_map;
+    return node_insert (parent, node);
+}
+
 void
 node_remove (node_t *node)
 {
+    return;
+    if (node->type == type_string || node->type == type_symbol)
+    {
+        free (node);
+    }
+    if (node->children_count)
+    {
+        for (u32 i = 0; i < node->children_count; i++)
+            node_remove (node->children[ i ]);
+        free (node->children);
+    }
+    free (node);
 }

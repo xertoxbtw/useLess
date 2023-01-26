@@ -93,6 +93,60 @@ std_while (scope_t **scope, node_t *node)
 }
 
 node_t *
+std_dotimes (scope_t **scope, node_t *node)
+{
+    if (node->children_count != 3)
+        return NULL;
+
+    node_t *arguments = node->children[ 1 ];
+    if (arguments->children_count == 2)
+    {
+        node_t *var = arguments->children[ 0 ];
+        node_t *times = node_evaluate (scope, arguments->children[ 1 ]);
+        if (var->type == type_symbol && times->type == type_number)
+        {
+            *scope = scope_push (*scope);
+            symbol_t *sym
+                = symbol_create (var->value.string, node_new_number (NULL, 0));
+            scope_add (*scope, sym);
+            for (u32 i = 0; i < (u32)times->value.number; i++)
+            {
+                if (sym->node->type == type_number)
+                    sym->node->value.number = i;
+
+                for (u32 b = 0; b < node->children[ 2 ]->children_count; b++)
+                    node_evaluate (scope, node->children[ 2 ]->children[ b ]);
+            }
+            *scope = scope_pop (*scope);
+        }
+    }
+    return NULL;
+}
+
+node_t *
+std_length (scope_t **scope, node_t *node)
+{
+    if (node->children_count == 2 && node->children[ 1 ]->children_count == 1)
+    {
+        u32 result = 0;
+        node_t *value
+            = node_evaluate (scope, node->children[ 1 ]->children[ 0 ]);
+
+        if (value->type == type_list_data || value->type == type_list_symbol
+            || value->type == type_list_argument)
+            result = value->children_count;
+        else
+            result = 1;
+
+        return node_new_number (NULL, result);
+    }
+    else
+        exit (1); // argument count error
+
+    return NULL;
+}
+
+node_t *
 std_if (scope_t **scope, node_t *node)
 {
     bool isTrue = true;
@@ -120,7 +174,7 @@ std_return (scope_t **scope, node_t *node)
     {
         scope[ 0 ]->flag_return = true;
         node_t *value = node_evaluate (scope, arguments->children[ 0 ]);
-		return value;
+        return value;
     }
     else
     {
@@ -135,12 +189,18 @@ std_typeof (scope_t **scope, node_t *node)
     node_t *arguments = node->children[ 1 ];
     if (arguments->children_count == 1)
     {
-		printf("%i\n", node_evaluate(scope,arguments->children[0])->type);
+        printf ("%i\n", node_evaluate (scope, arguments->children[ 0 ])->type);
     }
     else
     {
         exit (1); // Argument count error
     }
+    return NULL;
+}
+
+node_t *
+std_map (scope_t **scope, node_t *node)
+{
     return NULL;
 }
 
@@ -173,12 +233,21 @@ module_init (scope_t *scope)
     scope_add (scope,
                symbol_create ("while", node_new_internal (NULL, std_while)));
 
+    scope_add (
+        scope,
+        symbol_create ("dotimes", node_new_internal (NULL, std_dotimes)));
+
+    scope_add (scope,
+               symbol_create ("length", node_new_internal (NULL, std_length)));
+
     scope_add (scope, symbol_create ("if", node_new_internal (NULL, std_if)));
 
     scope_add (scope,
                symbol_create ("return", node_new_internal (NULL, std_return)));
     scope_add (scope,
                symbol_create ("typeof", node_new_internal (NULL, std_typeof)));
+
+    scope_add (scope, symbol_create ("map", node_new_internal (NULL, std_map)));
 
     scope_add (scope, symbol_create ("add", node_new_internal (NULL, std_add)));
     scope_add (scope, symbol_create ("sub", node_new_internal (NULL, std_sub)));

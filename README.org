@@ -4,9 +4,8 @@
   - Reimplement lexer_free
   - Proper error handling
   - Add type_list_map
-  - Add ; key after brackets close (if key[i+1] != ')' || ',')
   - When calling function, copy all nodes that are passed
-  - When assigning a function, current gets not set properly
+  - *value = fun(2) + fun(4)* does not work. Maybe move key translation to parser phase
 	
 Multiple lexer steps (Rewrite Lexer):
 1. Remove useless characters

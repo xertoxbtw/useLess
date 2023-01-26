@@ -15,8 +15,16 @@ scope_push (scope_t *scope)
 scope_t *
 scope_pop (scope_t *scope)
 {
-    // Todo: Free
-    return scope->previous;
+    for (u32 i = 0; i < scope->symbols_count; i++)
+    {
+        free (scope->symbols[ i ]->label);
+        node_remove (scope->symbols[ i ]->node);
+        free (scope->symbols[ i ]);
+    }
+    scope_t *new = scope->previous;
+    new->next = NULL;
+    free (scope);
+    return new;
 }
 
 void

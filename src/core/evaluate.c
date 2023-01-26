@@ -74,9 +74,9 @@ node_evaluate_symbol (scope_t **scope, node_t *node)
                                 sym->node->children[ 1 ]
                                     ->children[ i ]
                                     ->value.string,
-                                node_evaluate (
+                                node_copy (node_evaluate (
                                     scope,
-                                    node->children[ 1 ]->children[ i ])));
+                                    node->children[ 1 ]->children[ i ]))));
                     }
 
                     result = node_evaluate (scope, sym->node->children[ 2 ]);
@@ -92,8 +92,28 @@ node_evaluate_symbol (scope_t **scope, node_t *node)
                 node_t *(*func) (scope_t **, node_t *) = sym->node->value.func;
                 return func (scope, node);
             }
-            else if (node->children[ 1 ]->type == type_list_data) // Array
+            else if (sym->node->type == type_list_data
+                     && node->children[ 1 ]->type
+                         == type_list_argument) // Array
             {
+                if (node->children[ 1 ]->children_count == 1)
+                {
+                    node_t *index = node_evaluate (
+                        scope, node->children[ 1 ]->children[ 0 ]);
+                    if (index->type == type_number)
+                    {
+                        if ((u32)index->value.number
+                            <= sym->node->children_count - 1)
+                            return sym->node
+                                ->children[ (u32)index->value.number ];
+                        else
+                            return NULL;
+                    }
+                }
+                else
+                {
+                    return sym->node;
+                }
             }
         }
         else if (node->children_count == 3
@@ -135,14 +155,14 @@ node_evaluate (scope_t **scope, node_t *node)
     case type_internal:
         return node_evaluate_symbol (scope, node->parent);
         break;
-    case type_list_argument:
-        // TODO
-        break;
-    case type_list_data:
-        // TODO
-        break;
+
     case type_list_symbol:
         return node_evaluate_symbol (scope, node);
+        break;
+    case type_list_argument:
+    case type_list_data:
+    case type_list_map:
+        return node;
         break;
     }
 

@@ -20,7 +20,7 @@ parser (lexer_result_t *lexer)
             }
             else if (lexer->entries[ i ].content[ 0 ] == '{')
             {
-                current = node_new_list_symbol (current);
+                current = node_new_list_symbol (node_new_list_symbol (current));
             }
             else if (lexer->entries[ i ].content[ 0 ] == '(')
             {
@@ -35,11 +35,14 @@ parser (lexer_result_t *lexer)
             {
                 current = current->parent->parent;
             }
-            else if (lexer->entries[ i ].content[ 0 ] == '}'
-                     || lexer->entries[ i ].content[ 0 ] == ']'
+            else if (lexer->entries[ i ].content[ 0 ] == ']'
                      || lexer->entries[ i ].content[ 0 ] == ')')
             {
                 current = current->parent;
+            }
+            else if (lexer->entries[ i ].content[ 0 ] == '}')
+            {
+                current = current->parent->parent;
             }
         }
         else if (lexer->entries[ i ].type == lexer_symbol
@@ -92,6 +95,8 @@ parser_visualize_node (FILE *f, node_t *root)
     case type_internal:
         // Todo
         fprintf (f, "Todo");
+        break;
+    case type_list_map:
         break;
     }
     fprintf (f, "<ul>");

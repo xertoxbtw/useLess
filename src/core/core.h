@@ -34,7 +34,8 @@ typedef enum
     type_internal,
     type_list_argument,
     type_list_data,
-    type_list_symbol
+    type_list_symbol,
+	type_list_map
 } node_type;
 
 typedef struct node_t
@@ -56,7 +57,7 @@ typedef struct symbol_t
 {
     char *label;
     node_t *node;
-    bool reference;
+    bool reference; // Todo: Replace with pointer
 } symbol_t;
 
 typedef struct scope_t
@@ -70,6 +71,7 @@ typedef struct scope_t
 } scope_t;
 
 node_t *node_insert (node_t *parent, node_t *node);
+node_t *node_copy (node_t *node);
 node_t *node_new (node_t *parent, char *value);
 node_t *node_new_type (node_t *parent, char *value, node_type type);
 node_t *node_new_number (node_t *parent, double number);
@@ -82,6 +84,8 @@ node_t *node_new_internal (node_t *parent,
 node_t *node_new_list_argument (node_t *parent);
 node_t *node_new_list_data (node_t *parent);
 node_t *node_new_list_symbol (node_t *parent);
+node_t *node_new_list_map (node_t *parent);
+
 
 node_t *node_evaluate (scope_t **scope, node_t *node);
 void node_remove (node_t *node);

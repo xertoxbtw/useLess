@@ -12,9 +12,9 @@ struct key_entry
 };
 
 struct key_entry keys[]
-    = {{";", NULL},  {",", NULL},  {"(", NULL},    {")", NULL},  {"{", NULL},
-       {"}", NULL},  {"[", NULL},  {"]", NULL},    {"+", "add"}, {"-", "sub"},
-       {"*", "mul"}, {"/", "div"}, {"=", "assign"}};
+    = {{";", NULL},  {",", NULL},  {"(", NULL},     {")", NULL},  {"{", NULL},
+       {"}", NULL},  {"[", NULL},  {"]", NULL},     {"+", "add"}, {"-", "sub"},
+       {"*", "mul"}, {"/", "div"}, {"=", "assign"}, {":", "map"}};
 
 char *
 remove_trivial_chars (const char *buffer, u64 *len)
@@ -159,7 +159,8 @@ lexer_replace_key (lexer_result_t *in)
                     indent_count--;
                 }
                 else if ((in->entries[ i ].content[ 0 ] == ';'
-                          || in->entries[ i ].content[ 0 ] == ')')
+                          || in->entries[ i ].content[ 0 ] == ')'
+                          || in->entries[ i ].content[ 0 ] == ']')
                          && indent_count == indent_start)
                 {
                     if (i + 1 < in->count - 1
@@ -176,20 +177,32 @@ lexer_replace_key (lexer_result_t *in)
                              && complex_translation)
                     {
                         char *tmp = xcalloc (2, sizeof (char));
-                        tmp[ 0 ] = ')';
+                        tmp[ 0 ] = '}';
                         lexer_add (result, tmp, lexer_key);
-                        lexer_add (result, in->entries[ i ].content,
-                                   in->entries[ i ].type);
-                        i++;
+
+                        /* lexer_add (result, in->entries[ i ].content, */
+                        /*            in->entries[ i ].type); */
+
+                        // i++;
+                        complex_translation = false;
                         entry = NULL;
                     }
                     else if (!complex_translation)
                     {
                         char *tmp = xcalloc (2, sizeof (char));
                         tmp[ 0 ] = ')';
-                        lexer_add (result, tmp, lexer_key);
-                        lexer_add (result, in->entries[ i ].content,
-                                   in->entries[ i ].type);
+                        if (in->entries[ i ].content[ 0 ] == ']')
+                        {
+                            lexer_add (result, in->entries[ i ].content,
+                                       in->entries[ i ].type);
+                            lexer_add (result, tmp, lexer_key);
+                        }
+                        else
+                        {
+                            lexer_add (result, tmp, lexer_key);
+                            lexer_add (result, in->entries[ i ].content,
+                                       in->entries[ i ].type);
+                        }
                         i++;
                         entry = NULL;
                     }
@@ -209,9 +222,9 @@ lexer_replace_key (lexer_result_t *in)
                 for (u32 b = 0; b < sizeof (keys) / sizeof (struct key_entry);
                      b++)
                 {
-                    if (strcmp (keys[ b ].key, in->entries[ i + 1 ].content)
-                            == 0
-                        && keys[ b ].function_name)
+                    if (keys[ b ].function_name
+                        && strcmp (keys[ b ].key, in->entries[ i + 1 ].content)
+                            == 0)
                     {
                         entry = &keys[ b ];
                         break;
@@ -258,28 +271,7 @@ lexer_add_helpers (lexer_result_t *in)
 
     for (u32 i = 0; i < in->count; i++)
     {
-        if (in->entries[ i ].type == lexer_key)
-        {
-            if (in->entries[ i ].content[ 0 ] == '{')
-            {
-                lexer_add (result, in->entries[ i ].content,
-                           in->entries[ i ].type);
-                lexer_add (result, in->entries[ i ].content,
-                           in->entries[ i ].type);
-            }
-            else if (in->entries[ i ].content[ 0 ] == '}')
-            {
-                lexer_add (result, in->entries[ i ].content,
-                           in->entries[ i ].type);
-                lexer_add (result, in->entries[ i ].content,
-                           in->entries[ i ].type);
-            }
-            else
-                lexer_add (result, in->entries[ i ].content,
-                           in->entries[ i ].type);
-        }
-        else
-            lexer_add (result, in->entries[ i ].content, in->entries[ i ].type);
+        lexer_add (result, in->entries[ i ].content, in->entries[ i ].type);
     }
 
     return result;
