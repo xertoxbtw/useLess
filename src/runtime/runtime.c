@@ -13,7 +13,7 @@ runtime_t *
 runtime_init (void)
 {
     runtime_t *runtime = xcalloc (1, sizeof (runtime_t));
-    scope_t *scope = xcalloc (1, sizeof (scope_t));
+    runtime->scope = xcalloc (1, sizeof (scope_t));
     return runtime;
 }
 
