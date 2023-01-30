@@ -215,14 +215,6 @@ module_init (scope_t *scope)
         symbol_create ("function", node_new_internal (NULL, std_function)));
 
     scope_add (scope,
-               symbol_create ("console.print",
-                              node_new_internal (NULL, std_console_print)));
-
-    scope_add (scope,
-               symbol_create ("console.println",
-                              node_new_internal (NULL, std_console_println)));
-
-    scope_add (scope,
                symbol_create ("string.format",
                               node_new_internal (NULL, std_string_format)));
 
@@ -249,9 +241,29 @@ module_init (scope_t *scope)
 
     scope_add (scope, symbol_create ("map", node_new_internal (NULL, std_map)));
 
+    scope_add (scope,
+               symbol_create ("console.print",
+                              node_new_internal (NULL, std_console_print)));
+
+    scope_add (scope,
+               symbol_create ("console.println",
+                              node_new_internal (NULL, std_console_println)));
+	
+    scope_add (scope,
+               symbol_create ("console.read",
+                              node_new_internal (NULL, std_console_read)));
+
+    scope_add (scope,
+               symbol_create ("console.readln",
+                              node_new_internal (NULL, std_console_readln)));
+
     scope_add (scope, symbol_create ("add", node_new_internal (NULL, std_add)));
     scope_add (scope, symbol_create ("sub", node_new_internal (NULL, std_sub)));
     scope_add (scope, symbol_create ("mul", node_new_internal (NULL, std_mul)));
     scope_add (scope, symbol_create ("div", node_new_internal (NULL, std_div)));
+
+    scope_add (scope, symbol_create ("equal", node_new_internal (NULL, std_equal)));
+    scope_add (scope, symbol_create ("not", node_new_internal (NULL, std_not)));
+
     return 0;
 }

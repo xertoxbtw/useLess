@@ -3,10 +3,18 @@
 #include "parser.h"
 #include <stdio.h>
 
+key_entry_t keys[ keys_count ]
+    = {{";", NULL},     {",", NULL},  {"(", NULL},  {")", NULL},
+       {"{", NULL},     {"}", NULL},  {"[", NULL},  {"]", NULL},
+       {"+", "add"},    {"-", "sub"}, {"*", "mul"}, {"/", "div"},
+       {"=", "assign"}, {":", "map"}, {"==", "is"}, {"!=", "not"}};
+
 runtime_t *
 runtime_init (void)
 {
-    return calloc (1, sizeof (runtime_t));
+    runtime_t *runtime = xcalloc (1, sizeof (runtime_t));
+    runtime->scope = xcalloc (1, sizeof (scope_t));
+    return runtime;
 }
 
 void
@@ -45,14 +53,10 @@ runtime_execute_file (runtime_t *runtime, const char *path)
     }
     else
     {
-        scope_t *scope = xcalloc (1, sizeof (scope_t));
-        module_load (scope, "modules/std.so");
-
+        module_load (runtime->scope, "modules/std.so");
 
         for (u32 i = 0; i < root_node->children_count; i++)
-            node_evaluate (&scope, root_node->children[ i ]);
-
-        printf ("\n");
+            node_evaluate (&runtime->scope, root_node->children[ i ]);
     }
 
     free (buffer);

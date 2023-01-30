@@ -1,4 +1,5 @@
 #include "core.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -164,4 +165,12 @@ node_remove (node_t *node)
         free (node->children);
     }
     free (node);
+}
+
+node_t *
+node_extract (node_t *node)
+{
+	printf("TODO\n");
+	exit(100);
+    return NULL;
 }
