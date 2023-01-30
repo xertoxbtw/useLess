@@ -1,4 +1,5 @@
 #include "std.h"
+#include <stdio.h>
 
 node_t *
 std_console_print (scope_t **scope, node_t *node)
@@ -31,4 +32,16 @@ std_console_println (scope_t **scope, node_t *node)
     std_console_print (scope, node);
     putc ('\n', stdout);
     return NULL;
+}
+
+node_t *
+std_console_read (scope_t **scope, node_t *node)
+{
+	return NULL;
+}
+
+node_t *
+std_console_readln (scope_t **scope, node_t *node)
+{
+	return NULL;
 }

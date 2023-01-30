@@ -86,9 +86,9 @@ node_t *node_new_list_data (node_t *parent);
 node_t *node_new_list_symbol (node_t *parent);
 node_t *node_new_list_map (node_t *parent);
 
-
 node_t *node_evaluate (scope_t **scope, node_t *node);
 void node_remove (node_t *node);
+node_t *node_extract(node_t *node);
 
 symbol_t *symbol_create (char *label, node_t *node);
 void symbol_delete (symbol_t *sym);

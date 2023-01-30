@@ -1,18 +1,13 @@
-# Greet
-assign(text, [ "Hello", "World" ]);
+greet = function (name)
+{
+	console.print ("Hello, ");
+	console.println (name);
+};
 
-console.println({text[1]});
-assign(greet, {function (name, age)
-{{
-	console.println({string.format("Hello ~A, who is ~A years old.", name, age)});
-	console.println("NEWLINE");
-	console.println("NEWLINE");
-	console.println("NEWLINE");
-	if (1) {{
-	   	console.println("NEWLINE");
-	   	console.println("NEWLINE");
-	}}
-}}});
+name_function = function ()
+{
+	return ("Another Test Name");
+};
 
-greet("Josh", {num(15,0)}, 0);
-greet("Bill", -12.34);
+greet ("Test Name");
+greet (name_function ());
