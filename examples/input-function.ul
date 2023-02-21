@@ -1,0 +1,19 @@
+input = function ()
+{
+	console.print("> ");
+	entered = console.readln();
+
+	if(entered == "exit")
+	{
+		return(0);
+	}
+	elif(1)
+	{
+		console.println("Entered: ", entered);
+		return(1);
+	}
+};
+
+console.println("Enter 'exit' to quit");
+while(input());
+console.println("Goodbye");

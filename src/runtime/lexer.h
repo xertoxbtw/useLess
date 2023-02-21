@@ -23,5 +23,6 @@ typedef struct
 
 lexer_result_t *lexer (const char *buffer);
 lexer_result_t *lexer_tokenize (const char *buffer);
-lexer_result_t *lexer_check (lexer_result_t * lexer_result);
+bool lexer_check (lexer_result_t *lexer_result);
 void lexer_free (lexer_result_t *result);
+

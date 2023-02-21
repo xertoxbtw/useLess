@@ -1,4 +1,5 @@
 #include "core.h"
+#include <stdio.h>
 #ifdef linux
 #include <dlfcn.h>
 
@@ -6,13 +7,23 @@ i32
 module_load (scope_t *scope, char *path)
 {
     void *dl = dlopen (path, RTLD_LAZY);
-	if(!dl)
-		return 1;
-    i32 (*func) (scope_t *) = (i32 (*) (scope_t *))dlsym (dl, "module_init");
-	if(!func)
-		return 1;
+    if (!dl)
+        return 1;
+    symbol_definition_t *(*func) ()
+        = (symbol_definition_t * (*)()) dlsym (dl, "module_init");
+    if (!func)
+        return 1;
 
-	return func(scope);
+    symbol_definition_t *result = func ();
+    while (result->label != NULL)
+    {
+        scope_add (scope,
+                   symbol_create (result->label,
+                                  node_new_internal (NULL, result->fun)));
+        result++;
+    }
+
+    return 0;
 }
 
 #endif

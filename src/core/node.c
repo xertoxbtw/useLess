@@ -37,10 +37,12 @@ node_copy (node_t *node)
     {
         copy->value.number = node->value.number;
     }
-    else
+    else if (node->type == type_list_data)
     {
-        fprintf (stderr, "[TODO] node_copy\n");
-        exit (1);
+        for (u32 i = 0; i < node->children_count; i++)
+        {
+            node_insert (copy, node_copy (node->children[ i ]));
+        }
     }
 
     return copy;
@@ -109,11 +111,23 @@ node_new_symbol (node_t *parent, char *symbol)
 }
 
 node_t *
-node_new_internal (node_t *parent, node_t *(*func) (scope_t **, node_t *))
+node_new_internal (node_t *parent,
+                   node_t *(*func) (scope_t **, node_t *, node_t *))
 {
     node_t *node = xcalloc (1, sizeof (node_t));
     node->type = type_internal;
-    node->value.func = func;
+    node->value.raw = func;
+
+    return node_insert (parent, node);
+}
+
+node_t *
+node_new_internal_custom (node_t *parent, void *ptr)
+{
+
+    node_t *node = xcalloc (1, sizeof (node_t));
+    node->type = type_internal;
+    node->value.raw = ptr;
 
     return node_insert (parent, node);
 }
@@ -153,15 +167,23 @@ node_new_list_map (node_t *parent)
 void
 node_remove (node_t *node)
 {
-    return;
-    if (node->type == type_string || node->type == type_symbol)
-    {
-        free (node);
-    }
-    if (node->children_count)
+    /*
+      if (node->type == type_symbol || node->type == type_string)
+        free(node->value.string);
+    free(node);
+    */
+}
+
+void
+node_free (node_t *node)
+{
+    if (node->type == type_symbol || node->type == type_string)
+        free (node->value.string);
+    if (node->type == type_list_map || node->type == type_list_data
+        || node->type == type_list_symbol || node->type == type_list_argument)
     {
         for (u32 i = 0; i < node->children_count; i++)
-            node_remove (node->children[ i ]);
+            node_free (node->children[ i ]);
         free (node->children);
     }
     free (node);
@@ -170,7 +192,21 @@ node_remove (node_t *node)
 node_t *
 node_extract (node_t *node)
 {
-	printf("TODO\n");
-	exit(100);
-    return NULL;
+    u32 index = 0;
+    node_t *parent = node->parent;
+    for (u32 i = 0; i < parent->children_count; i++)
+    {
+        if (node == parent->children[ i ])
+        {
+            index = i;
+            break;
+        }
+    }
+
+    u32 len = parent->children_count - index - 1;
+    memmove (parent->children + index, parent->children + index + 1,
+             len * sizeof (node_t *));
+    parent->children_count--;
+    node->parent = NULL;
+    return node;
 }

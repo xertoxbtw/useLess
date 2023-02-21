@@ -3,17 +3,24 @@
 #include "parser.h"
 #include <stdio.h>
 
-key_entry_t keys[ keys_count ]
-    = {{";", NULL},     {",", NULL},  {"(", NULL},  {")", NULL},
-       {"{", NULL},     {"}", NULL},  {"[", NULL},  {"]", NULL},
-       {"+", "add"},    {"-", "sub"}, {"*", "mul"}, {"/", "div"},
-       {"=", "assign"}, {":", "map"}, {"==", "is"}, {"!=", "not"}};
+key_entry_t _internal_keys[]
+    = {{"==", "equal"}, {"!=", "not"}, {"=", "assign"}, {";", NULL},
+       {",", NULL},     {"(", NULL},   {")", NULL},     {"{", NULL},
+       {"}", NULL},     {"+", "add"},  {"-", "sub"},    {"*", "mul"},
+       {"/", "div"},    {"%", "mod"},  {":", "map"}};
+
+key_entry_t *keys;
+u32 keys_count;
 
 runtime_t *
 runtime_init (void)
 {
     runtime_t *runtime = xcalloc (1, sizeof (runtime_t));
     runtime->scope = xcalloc (1, sizeof (scope_t));
+
+    keys_count = sizeof (_internal_keys) / sizeof (_internal_keys[ 0 ]);
+    keys = _internal_keys;
+
     return runtime;
 }
 
@@ -46,17 +53,20 @@ runtime_execute_file (runtime_t *runtime, const char *path)
             printf ("%s\n", lexer_result->entries[ i ].content);
         }
     }
-    node_t *root_node = parser (lexer_result);
-    if (runtime->option_output_parser)
-    {
-        parser_visualize (stdout, root_node);
-    }
     else
     {
-        module_load (runtime->scope, "modules/std.so");
+        node_t *root_node = parser (lexer_result);
+        if (runtime->option_output_parser)
+        {
+            parser_visualize (stdout, root_node);
+        }
+        else
+        {
+            module_load (runtime->scope, "modules/std.um");
 
-        for (u32 i = 0; i < root_node->children_count; i++)
-            node_evaluate (&runtime->scope, root_node->children[ i ]);
+            for (u32 i = 0; i < root_node->children_count; i++)
+                node_evaluate (&runtime->scope, root_node->children[ i ]);
+        }
     }
 
     free (buffer);

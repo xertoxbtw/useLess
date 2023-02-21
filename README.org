@@ -1,16 +1,14 @@
 #+TITLE:useLess
 
 * Todo
-  - Reimplement lexer_free
-  - *Proper error handling*
-  - Check for errors
-  - Add type_list_map
-  - When calling function, copy all nodes that are passed
-  - Multichar keys don't work
-  - *Parser* Convert close_counter to stack-based system
-
-* Standard functions
-| assign (label, value)               | Used to create and assign symbols to a specific value.                                                                                                                                                                                                                                                                      |
-| function (arguments...) {action...} | Is used to define new functions. The first argument list specifies the required arguments that will be passed to the function when called. The second argument list specifies what will happen when the function is called. Both of these lists can be left empty but it is necessary that both exist even when left empty. |
-| console.print (value)               | Prints whatever value was passed.                                                                                                                                                                                                                                                                                           |
-| console.println (value)             | Prints whatever value was passed and adds a newline at the end.                                                                                                                                                                                                                                                             |
+  - list.copy
+  - Multiple return statements in a function dont work
+  - Finish Standard Library
+  - Add support for negative numbers (lexer)
+  - Check if lexer result contains errors
+  - list map implementation and usage
+  - Multifile support
+  - Empty string do not work
+  - console.readln doesnt accept empty strings
+  - Create documentation
+  - Add support for reference passing

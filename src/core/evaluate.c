@@ -1,4 +1,5 @@
 #include "core.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -7,135 +8,115 @@
 node_t *
 node_evaluate_symbol (scope_t **scope, node_t *node)
 {
-    node_t *result = NULL;
-    // Eval all nodes
-    if (node->type == type_list_symbol
-        && node->children[ 0 ]->type == type_list_symbol)
+    symbol_t *sym = scope_lookup (scope[ 0 ], node->value.string);
+    if (sym)
+        return sym->node;
+    error_custom ("Symbol \"%s\" was not found",
+                  node->value.string);
+
+    return NULL;
+}
+
+node_t *
+node_evaluate_list_symbol (scope_t **scope, node_t *node)
+{
+    if (node->children_count == 0)
+        return NULL;
+    if (node->children[ 0 ]->type == type_list_symbol)
     {
-        for (u32 i = 0; i < node->children_count; i++)
-        {
-            result = node_evaluate (scope, node->children[ i ]);
-            if (scope[ 0 ]->flag_return)
-            {
-                scope[ 0 ]->flag_return = false;
-                return result;
-            }
-        }
+        node_t *last = NULL;
+        for (u32 i = 0; i < node->children_count && !scope[ 0 ]->flag_return;
+             i++)
+            last = node_evaluate (scope, node->children[ i ]);
+
+        return last;
     }
+
+    symbol_t *sym
+        = scope_lookup (scope[ 0 ], node->children[ 0 ]->value.string);
+
+    if (!sym || !sym->node)
+    {
+        error_custom ("Symbol \"%s\" was not found",
+                      node->children[ 0 ]->value.string);
+        return NULL;
+    }
+
+    node_t *arguments = node->children[ 1 ];
+    node_t *statements = NULL;
+
+    if (node->children_count == 3)
+        statements = node->children[ 2 ];
     else
+        statements = node_new_list_symbol (NULL);
+
+    if (sym->node->type == type_internal) // Internal Function
     {
-        if (node->type == type_symbol) // Variable
+        node_t *(*func) (scope_t **, node_t *, node_t *) = sym->node->value.raw;
+        return func (scope, arguments, statements);
+    }
+    else if (sym->node->type == type_list_symbol) // User Defined Function
+    {
+        node_t *function = sym->node;
+        if (function->children[ 0 ]->children_count
+            == arguments->children_count)
         {
-            symbol_t *sym = scope_lookup (*scope, node->value.string);
-
-            if (sym)
-                return sym->node;
-            else
-                HANDLE_NOT_FOUND
+            scope[ 0 ] = scope_push (scope[ 0 ]);
+            for (u32 i = 0; i < arguments->children_count; i++)
+            {
+                scope_add (
+                    scope[ 0 ],
+                    symbol_create (
+                        function->children[ 0 ]->children[ i ]->value.string,
+                        node_evaluate (scope, arguments->children[ i ])));
+            }
+            node_t *result = node_evaluate (scope, function->children[ 1 ]);
+            scope[ 0 ]->flag_return = false;
+            scope[ 0 ] = scope_pop (scope[ 0 ]);
+            return result;
         }
-        else if (node->children_count == 1
-                 && node->children[ 0 ]->type == type_symbol) // Variable
+        else
         {
-            symbol_t *sym
-                = scope_lookup (*scope, node->children[ 0 ]->value.string);
-
-            if (sym)
-                return sym->node;
-            else
-                HANDLE_NOT_FOUND
-        }
-        else if (node->children_count == 2
-                 && node->children[ 0 ]->type == type_symbol) // Function/Array
-        {
-            symbol_t *sym
-                = scope_lookup (*scope, node->children[ 0 ]->value.string);
-            if (!sym)
-            {
-                printf ("Symbol: %s was not found\n",
-                        node->children[ 0 ]->value.string);
-                exit (1);
-            }
-
-            if (sym->node->type == type_list_symbol
-                && node->children[ 1 ]->type == type_list_argument) // Function
-            {
-                // Compare argument count
-                if (sym->node->children[ 1 ]->children_count
-                    == node->children[ 1 ]->children_count)
-                {
-                    *scope = scope_push (*scope);
-
-                    for (u32 i = 0; i < node->children[ 1 ]->children_count;
-                         i++)
-                    {
-                        scope_add (
-                            *scope,
-                            symbol_create (
-                                sym->node->children[ 1 ]
-                                    ->children[ i ]
-                                    ->value.string,
-                                node_copy (node_evaluate (
-                                    scope,
-                                    node->children[ 1 ]->children[ i ]))));
-                    }
-
-                    result = node_evaluate (scope, sym->node->children[ 2 ]);
-                    *scope = scope_pop (*scope);
-                }
-                else
-                {
-                    exit (1); // argument count error
-                }
-            }
-            else if (sym->node->type == type_internal) // Internal
-            {
-                node_t *(*func) (scope_t **, node_t *) = sym->node->value.func;
-                return func (scope, node);
-            }
-            else if (sym->node->type == type_list_data
-                     && node->children[ 1 ]->type
-                         == type_list_argument) // Array
-            {
-                if (node->children[ 1 ]->children_count == 1)
-                {
-                    node_t *index = node_evaluate (
-                        scope, node->children[ 1 ]->children[ 0 ]);
-                    if (index->type == type_number)
-                    {
-                        if ((u32)index->value.number
-                            <= sym->node->children_count - 1)
-                            return sym->node
-                                ->children[ (u32)index->value.number ];
-                        else
-                            return NULL;
-                    }
-                }
-                else
-                {
-                    return sym->node;
-                }
-            }
-        }
-        else if (node->children_count == 3
-                 && node->children[ 0 ]->type
-                     == type_symbol) // Complex Function
-        {
-            symbol_t *sym
-                = scope_lookup (*scope, node->children[ 0 ]->value.string);
-            if (!sym)
-            {
-                exit (1);
-            }
-
-            if (sym->node->type == type_internal) // Internal
-            {
-                node_t *(*func) (scope_t **, node_t *) = sym->node->value.func;
-                return func (scope, node);
-            }
+            error_argument_count (node->children[ 0 ]->value.string,
+                                  arguments->children_count,
+                                  function->children[ 0 ]->children_count);
         }
     }
 
-    return result;
+    return NULL;
+}
+
+node_t *
+node_evaluate_string (scope_t **scope, node_t *node)
+{
+    u32 len = strlen (node->value.string);
+    char *buffer = xcalloc (len + 1, sizeof (char));
+    u32 buffer_index = 0;
+    for (u32 i = 0; i < len; i++)
+    {
+        if (node->value.string[ i ] == '\\' && i + 1 < len - 1)
+        {
+            switch (node->value.string[ i + 1 ])
+            {
+            case 'n':
+                buffer[ buffer_index++ ] = '\n';
+                break;
+            case 't':
+                buffer[ buffer_index++ ] = '\t';
+                break;
+            }
+            i++;
+        }
+        else
+        {
+            buffer[ buffer_index++ ] = node->value.string[ i ];
+        }
+    }
+
+    free (node->value.string);
+    node->value.string = buffer;
+
+    return node;
 }
 
 node_t *
@@ -147,17 +128,16 @@ node_evaluate (scope_t **scope, node_t *node)
         return node;
         break;
     case type_string:
-        return node;
+        return node_evaluate_string (scope, node);
         break;
     case type_symbol:
         return node_evaluate_symbol (scope, node);
         break;
     case type_internal:
-        return node_evaluate_symbol (scope, node->parent);
+        return node; // Todo
         break;
-
     case type_list_symbol:
-        return node_evaluate_symbol (scope, node);
+        return node_evaluate_list_symbol (scope, node);
         break;
     case type_list_argument:
     case type_list_data:

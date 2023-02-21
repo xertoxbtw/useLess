@@ -1,0 +1,11 @@
+entered = " ";
+console.println("Enter 'exit' to quit");
+
+while(entered != "exit")
+{
+	console.print("> ");
+	entered = console.readln();
+	console.println("Entered: ", entered);
+}
+
+console.println("Goodbye");

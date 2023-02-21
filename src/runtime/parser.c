@@ -9,24 +9,19 @@
 node_t *
 parser (lexer_result_t *lexer)
 {
+    node_t *result = parser_parse (lexer);
+    parser_transform (result);
+    return result;
+}
+
+node_t *
+parser_parse (lexer_result_t *lexer)
+{
     node_t *root = node_new_list_symbol (NULL);
     node_t *current = root;
 
-    u32 close_counter = 0;
-    u32 translation_counter = 0, translation_amount = 0;
-
     for (u32 i = 0; i < lexer->count; i++)
     {
-        if (translation_counter)
-        {
-            translation_counter--;
-            if (translation_counter == 0)
-            {
-                for (u32 b = 0; b < translation_amount; b++)
-                    current = current->parent;
-                translation_amount = 0;
-            }
-        }
         if (lexer->entries[ i ].type == lexer_key) // Key
         {
             if (lexer->entries[ i ].content[ 0 ] == '(')
@@ -38,15 +33,9 @@ parser (lexer_result_t *lexer)
                 if (i + 1 < lexer->count - 1
                     && lexer->entries[ i + 1 ].type == lexer_key
                     && lexer->entries[ i + 1 ].content[ 0 ] == '{')
-                {
                     current = current->parent;
-                }
                 else
-                {
-                    if (close_counter-- > 0)
-                        current = current->parent;
-                    current = current->parent;
-                }
+                    current = current->parent->parent;
             }
             else if (lexer->entries[ i ].content[ 0 ] == '{')
             {
@@ -54,23 +43,16 @@ parser (lexer_result_t *lexer)
             }
             else if (lexer->entries[ i ].content[ 0 ] == '}')
             {
-                if (close_counter-- > 0)
-                    current = current->parent;
-                current = current->parent;
+                current = current->parent->parent;
             }
-            else if (lexer->entries[ i ].content[ 0 ] == ';')
+            else if (lexer->entries[ i ].content[ 0 ] == ';'
+                     || lexer->entries[ i ].content[ 0 ] == ',')
             {
-                if ((i32)i - 1 >= 0 && lexer->entries[ i - 1 ].type == lexer_key
-                    && lexer->entries[ i - 1 ].content[ 0 ] == ')')
-                {
-                    // Todo: If close_counter == 0 also check if
-                    // *lexer->entries[ i - 1 ].content[ 0 ] == '}'*
-                }
-                else
-                {
-                    if (close_counter-- > 0)
-                        current = current->parent->parent;
-                }
+            }
+            else
+            {
+                node_new_internal (current,
+                                   (void *)lexer->entries[ i ].content);
             }
         }
         else
@@ -83,31 +65,6 @@ parser (lexer_result_t *lexer)
                         == '(') // Function call
                 {
                     current = node_new_list_symbol (current);
-                    close_counter++;
-                }
-                else if (lexer->entries[ i ].type == lexer_symbol
-                         && lexer->entries[ i + 1 ].content[ 0 ]
-                             == '[') // array call
-                {
-                    exit (1); // TODO
-                }
-                else
-                {
-                    for (u32 key = 0; key < keys_count; key++)
-                    {
-                        if (keys[ key ].function_name
-                            && strcmp (keys[ key ].key,
-                                       lexer->entries[ i + 1 ].content)
-                                == 0)
-                        {
-                            current = node_new_list_symbol (current);
-                            node_new_symbol (current,
-                                             keys[ key ].function_name);
-                            current = node_new_list_argument (current);
-                            close_counter++;
-                            break;
-                        }
-                    }
                 }
             }
 
@@ -127,6 +84,46 @@ parser (lexer_result_t *lexer)
         }
     }
     return root;
+}
+
+void
+parser_transform (node_t *root)
+{
+    if (!root)
+        return;
+    for (i32 i = root->children_count - 1; i >= 0; i--)
+    {
+        if (root->children[ i ]->type == type_internal)
+        {
+            node_t *key = root->children[ i ];
+            root->children[ i ] = node_new_list_symbol (NULL);
+            root->children[ i ]->parent = root;
+            node_t *parent = root->children[ i ];
+
+            node_t *left_side = node_extract (root->children[ i - 1 ]);
+            node_t *right_side = node_extract (root->children[ i ]);
+
+            for (u32 index = 0; index < keys_count; index++)
+            {
+                if (keys[ index ].function_name
+                    && strcmp (keys[ index ].key, key->value.string) == 0)
+                {
+                    node_new_symbol (parent,
+                                     (char *)keys[ index ].function_name);
+                    break;
+                }
+            }
+
+            node_t *args = node_new_list_argument (parent);
+            node_insert (args, left_side);
+            node_insert (args, right_side);
+            i--;
+        }
+        if (root->children[ i ]->type == type_list_symbol
+            || root->children[ i ]->type == type_list_argument
+            || root->children[ i ]->type == type_list_data)
+            parser_transform (root->children[ i ]);
+    }
 }
 
 void
@@ -154,8 +151,8 @@ parser_visualize_node (FILE *f, node_t *root)
         fprintf (f, "<value></value><type>List Argument</type>");
         break;
     case type_internal:
-        // Todo
-        fprintf (f, "Todo");
+        fprintf (f, "<value>%s</value><type>Internal</type>",
+                 root->value.string);
         break;
     case type_list_map:
         break;

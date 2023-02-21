@@ -59,8 +59,9 @@ lexer_result_t *
 lexer (const char *buffer_input)
 {
     lexer_result_t *result = lexer_tokenize (buffer_input);
-	result = lexer_check (result);
-    return result;
+    if (lexer_check (result))
+        return result;
+    return NULL;
 }
 
 lexer_result_t *
@@ -93,9 +94,10 @@ lexer_tokenize (const char *buffer_input)
                     // TODO: Simple Typecheck
                     if (tmp[ 0 ] == '"')
                         lexer_add (result, tmp, lexer_string);
-                    else if ((tmp[ 0 ] >= '0' && tmp[ 0 ] <= '9')
-                             || tmp[ 0 ] == '+' || tmp[ 0 ] == '-')
+                    else if (tmp[ 0 ] >= '0' && tmp[ 0 ] <= '9')
+                    {
                         lexer_add (result, tmp, lexer_number);
+                    }
                     else
                         lexer_add (result, tmp, lexer_symbol);
                 }
@@ -105,7 +107,16 @@ lexer_tokenize (const char *buffer_input)
                     = xcalloc (strlen (keys[ key ].key) + 1, sizeof (char));
                 strncpy (key_buffer, keys[ key ].key, strlen (keys[ key ].key));
                 lexer_add (result, key_buffer, lexer_key);
-                start_index = i + 1;
+
+                u32 key_len = strlen (keys[ key ].key);
+                if (key_len > 1)
+                {
+                    i += strlen (keys[ key ].key) - 1;
+                    start_index = i + 1;
+                }
+                else
+                    start_index = i + 1;
+				break;
             }
         }
     }
@@ -113,20 +124,30 @@ lexer_tokenize (const char *buffer_input)
     return result;
 }
 
-lexer_result_t *lexer_check (lexer_result_t * lexer_result)
+bool
+lexer_check (lexer_result_t *lexer_result)
 {
-	return lexer_result;
+    i32 brackets_count_normal = 0;
+    i32 brackets_count_square = 0;
+    i32 brackets_count_curly = 0;
+
+    for (u32 i = 0; i < lexer_result->count; i++)
+    {
+    }
+
+    if (brackets_count_normal != 0 || brackets_count_square != 0
+        || brackets_count_curly)
+        return false;
+    return true;
 }
 
 void
 lexer_free (lexer_result_t *result)
 {
-    /*
     for (u32 i = 0; i < result->count; i++)
     {
         free (result->entries[ i ].content);
     }
     free (result->entries);
     free (result);
-    */
 }

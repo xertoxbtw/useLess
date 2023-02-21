@@ -1,0 +1,53 @@
+include("modules/tigr.um");
+
+square_size = 16;
+playfield_size = 16;
+head_x = 4;
+head_y = 4;
+
+body = list(list(3,3), list(2,2));
+
+update = function()
+{
+   	# head_x = head_x + 1;
+	# head_y = head_y + 1;
+
+	head_x = head_x % square_size;
+	head_y = head_y % square_size;
+
+	last = list(head_x, head_y);
+	list.do (part, body)
+	{
+		current = list.copy(part);
+		part = list.copy(last);
+		last = current;
+	}
+};
+
+display = function ()
+{
+	tigr.clear(window,list(255,255,255));
+
+	tigr.fillRect(window, head_x * square_size, head_y * square_size, square_size, square_size, list(255,0,0,255));
+	list.do(parts, body)
+	{
+		tigr.fillRect(window, list.get(parts,0) * square_size, list.get(parts,1) * square_size, square_size, square_size, list(0,255,0,255));
+	}
+
+	tigr.update(window);
+};
+
+main = function ()
+{
+	window = tigr.window(playfield_size * square_size, playfield_size * square_size, "Title", 0);
+
+	while(tigr.closed(window) == 0)
+	{	
+		update();
+		display();
+	}
+
+	tigr.free(window);
+};
+
+main ();

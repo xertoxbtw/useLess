@@ -7,7 +7,7 @@
 	  (beginning-of-line)
 	  (indent-line-to (* indent-count tab-width)))))
 
-(setq useless-keywords '("assign" "console.print" "console.println" "function"))
+(setq useless-keywords '("assign" "function" "include" "return" "while" "dotimes" "console.print" "console.println" "console.read" "console.readln" "add" "sub" "mul" "div" "mod" "if" "elif" "equal" "not" "greater" "less" "greater_equal" "less_equal" "string.format" "string.split" "string.replace" "file.read" "file.write" "list?" "string?" "number?" "list" "list.get" "list.set" "list.append" "list.do" "list.range" "list.copy" "map" "length" "internal.symbols" "tigr.window" "tigr.bitmap" "tigr.free" "tigr.closed" "tigr.update" "tigr.clear" "tigr.fill" "tigr.line" "tigr.rect" "tigr.fillRect" "tigr.circle" "tigr.fillCircle" "tigr.clip" "tigr.blit" "tigr.blitAlpha" "tigr.color" "tigr.print" "tigr.mouse" "tigr.keyDown" "tigr.keyHeld"))
 
 (setq keywords-font-lock-spec
 	  (cons (regexp-opt useless-keywords)
