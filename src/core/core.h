@@ -13,9 +13,12 @@
     fprintf (stderr, "[TODO] %s:%i \"%s\"\n", __FILE__, __LINE__, msg); \
     exit (16)
 
+#define free(ptr) xfree(ptr)
+
 void *xcalloc (size_t nmemb, size_t size);
 void *xrealloc (void *ptr, size_t size);
 void *xreallocarray (void *ptr, size_t nmemb, size_t size);
+void xfree (void *ptr);
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -38,8 +41,7 @@ typedef enum
     type_internal,
     type_list_argument,
     type_list_data,
-    type_list_symbol,
-    type_list_map
+    type_list_symbol
 } node_type;
 
 typedef struct node_t
@@ -61,14 +63,13 @@ typedef struct symbol_t
 {
     char *label;
     node_t *node;
-    bool reference; // Todo: Replace with pointer
 } symbol_t;
 
 typedef struct scope_t
 {
     symbol_t **symbols;
     u32 symbols_count;
-    bool flag_return;
+    node_t *node_return;
     bool flag_if_failed;
 
     struct scope_t *previous;
@@ -97,11 +98,7 @@ node_t *node_new_list_argument (node_t *parent);
 node_t *node_new_list_data (node_t *parent);
 node_t *node_new_list_symbol (node_t *parent);
 
-node_t *node_new_list_map (node_t *parent);
-
 node_t *node_evaluate (scope_t **scope, node_t *node);
-void node_remove (node_t *node);
-void node_free (node_t *node);
 node_t *node_extract (node_t *node);
 
 symbol_t *symbol_create (char *label, node_t *node);

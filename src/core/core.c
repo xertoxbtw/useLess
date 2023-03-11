@@ -1,29 +1,26 @@
 #include "core.h"
+#include <gc.h>
 
 void *
 xcalloc (size_t nmemb, size_t size)
 {
-    void *ptr = calloc (nmemb, size);
-    if (!ptr)
-    {
-        ERROR ("Memory Allocation failed");
-    }
-    return ptr;
+	
+    return GC_malloc(nmemb * size);
 }
 
 void *
 xrealloc (void *ptr, size_t size)
 {
-    void *new_ptr = realloc (ptr, size);
-    if (!new_ptr)
-    {
-        ERROR ("Memory Reallocation failed");
-    }
-    return new_ptr;
+    return GC_realloc(ptr, size);
 }
 
 void *
 xreallocarray (void *ptr, size_t nmemb, size_t size)
 {
-    return xrealloc (ptr, nmemb * size);
+    return GC_realloc(ptr, nmemb * size);
+}
+
+void xfree(void *ptr)
+{
+	GC_free(ptr);
 }

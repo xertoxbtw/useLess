@@ -157,39 +157,6 @@ node_new_list_symbol (node_t *parent)
 }
 
 node_t *
-node_new_list_map (node_t *parent)
-{
-    node_t *node = xcalloc (1, sizeof (node_t));
-    node->type = type_list_map;
-    return node_insert (parent, node);
-}
-
-void
-node_remove (node_t *node)
-{
-    /*
-      if (node->type == type_symbol || node->type == type_string)
-        free(node->value.string);
-    free(node);
-    */
-}
-
-void
-node_free (node_t *node)
-{
-    if (node->type == type_symbol || node->type == type_string)
-        free (node->value.string);
-    if (node->type == type_list_map || node->type == type_list_data
-        || node->type == type_list_symbol || node->type == type_list_argument)
-    {
-        for (u32 i = 0; i < node->children_count; i++)
-            node_free (node->children[ i ]);
-        free (node->children);
-    }
-    free (node);
-}
-
-node_t *
 node_extract (node_t *node)
 {
     u32 index = 0;

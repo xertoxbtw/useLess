@@ -1,6 +1,7 @@
 #include "std.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <time.h>
 
 node_t *
 std_assign (scope_t **scope, node_t *arguments, node_t *statements)
@@ -9,48 +10,13 @@ std_assign (scope_t **scope, node_t *arguments, node_t *statements)
     {
         if (arguments->children[ 0 ]->type == type_symbol)
         {
-            symbol_t *sym = scope_lookup (
-                *scope, arguments->children[ 0 ]->value.string);
+            symbol_t *sym
+                = scope_lookup (*scope, arguments->children[ 0 ]->value.string);
             if (sym) // If already exists, override
             {
                 node_t *node_new
                     = node_evaluate (scope, arguments->children[ 1 ]);
-                if (node_new->type == sym->node->type)
-                {
-                    if (node_new->type == type_string)
-                    {
-                        free (sym->node->value.string);
-                        sym->node->value.string = node_new->value.string;
-                    }
-                    else if (node_new->type == type_number)
-                    {
-                        sym->node->value.number = node_new->value.number;
-                    }
-                }
-                else
-                {
-                    if (node_new->type == type_string)
-                    {
-                        if (sym->node->type == type_number)
-                        {
-                            sym->node->type = type_string;
-                            sym->node->value.string = node_new->value.string;
-                        }
-                        else
-                            exit (1); // Todo
-                    }
-                    else if (node_new->type == type_number)
-                    {
-                        if (sym->node->type == type_string)
-                        {
-                            sym->node->type = type_number;
-                            free (sym->node->value.string);
-                            sym->node->value.number = node_new->value.number;
-                        }
-                        else
-                            exit (1); // Todo
-                    }
-                }
+                sym->node = node_new;
             }
             else
             {
@@ -103,13 +69,62 @@ std_return (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 1)
     {
-        scope[ 0 ]->flag_return = true;
         node_t *value = node_evaluate (scope, arguments->children[ 0 ]);
+        scope[ 0 ]->node_return = value;
         return value;
     }
     else
     {
         error_argument_count ("return", arguments->children_count, 1);
+    }
+    return NULL;
+}
+
+node_t *
+std_random (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    static bool std_random_seed_set = false;
+    if (!std_random_seed_set)
+    {
+        srand (time (NULL));
+        std_random_seed_set = true;
+    }
+
+    if (arguments->children_count == 0)
+    {
+        return node_new_number (NULL, rand ());
+    }
+    else if (arguments->children_count == 1)
+    {
+        node_t *max = node_evaluate (scope, arguments->children[ 0 ]);
+        if (max->type == type_number)
+        {
+            return node_new_number (NULL,
+                                    rand () % (i32)(max->value.number + 1));
+        }
+        else
+            error_argument_type ("random", max->type, type_number);
+    }
+    else if (arguments->children_count == 2)
+    {
+        node_t *min = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *max = node_evaluate (scope, arguments->children[ 1 ]);
+        if (min->type == type_number && max->type == type_number)
+        {
+            return node_new_number (
+                NULL,
+                (i32)min->value.number
+                    + rand ()
+                        % (i32)(max->value.number + 1 - min->value.number));
+        }
+        else if (min->type != type_number)
+            error_argument_type ("random", min->type, type_number);
+        else if (max->type != type_number)
+            error_argument_type ("random", max->type, type_number);
+    }
+    else
+    {
+        error_argument_count ("random", arguments->children_count, 2);
     }
     return NULL;
 }

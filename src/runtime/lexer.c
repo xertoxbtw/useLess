@@ -91,13 +91,10 @@ lexer_tokenize (const char *buffer_input)
                     char *tmp = xcalloc (local_len + 1, sizeof (char));
                     strncpy (tmp, buffer + start_index, local_len);
 
-                    // TODO: Simple Typecheck
                     if (tmp[ 0 ] == '"')
                         lexer_add (result, tmp, lexer_string);
                     else if (tmp[ 0 ] >= '0' && tmp[ 0 ] <= '9')
-                    {
                         lexer_add (result, tmp, lexer_number);
-                    }
                     else
                         lexer_add (result, tmp, lexer_symbol);
                 }

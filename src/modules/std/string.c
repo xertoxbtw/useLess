@@ -1,54 +1,19 @@
 #include "std.h"
+#include <string.h>
 #define STEP_SIZE 32
+
+char *
+str_copy (const char *base)
+{
+    u32 len = strlen (base);
+    char *str = xcalloc (len + 1, sizeof (char));
+    strncpy (str, base, len);
+    return str;
+}
 
 node_t *
 std_string_format (scope_t **scope, node_t *arguments, node_t *statements)
 {
-    /*
-    if (arguments->children_count == 0)
-        error_argument_count ("string.format", arguments->children_count, 1);
-
-    node_t *format = node_evaluate (scope, arguments->children[ 0 ]);
-    if (format->type != type_string)
-        error_argument_type ("string.format", format->type, type_string);
-
-    char *format_string = format->value.string;
-    u32 format_length = strlen (format_string);
-    u32 buffer_size = STEP_SIZE, buffer_index = 0;
-    char *buffer = xcalloc (buffer_size, sizeof (char));
-    u32 node_index = 1;
-
-    for (u32 i = 0; i < format_length; i++)
-    {
-        if (format_string[ i ] == '~' && i + 1 < format_length - 1
-            && (format_string[ i + 1 ] == 'A' || format_string[ i + 1 ] == 'a'))
-        {
-            if (node_index < arguments->children_count - 1)
-            {
-                node_t *current = node_evaluate (
-                    scope, arguments->children[ node_index++ ]);
-                char *value = NULL;
-                if (current->type == type_string)
-                {
-                    value = current->value.string;
-                }
-                else if (current->type == type_number)
-                {
-                }
-                else
-                {
-                }
-            }
-            else
-                error_argument_count ("string.format",
-                                      arguments->children_count, node_index);
-
-            i++;
-        }
-        else
-        {
-        }
-        }*/
 
     return NULL;
 }
@@ -56,6 +21,32 @@ std_string_format (scope_t **scope, node_t *arguments, node_t *statements)
 node_t *
 std_string_split (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    node_t *root = node_new_list_data (NULL);
+    if (arguments->children_count == 2)
+    {
+        node_t *str_node = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *delim_node = node_evaluate (scope, arguments->children[ 1 ]);
+        if (str_node->type == type_string && delim_node->type == type_string)
+        {
+            char *str = str_copy (str_node->value.string);
+            char *token = strtok (str, delim_node->value.string);
+            while (token != NULL)
+            {
+                node_new_string_raw (root, token);
+                token = strtok (NULL, delim_node->value.string);
+            }
+
+			return root;
+        }
+        else
+            error_argument_type ("string.split",
+                                 str_node->type == type_string
+                                     ? delim_node->type
+                                     : str_node->type,
+                                 type_string);
+    }
+    else
+        error_argument_count ("string.split", arguments->children_count, 2);
     return NULL;
 }
 

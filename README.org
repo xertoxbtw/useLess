@@ -1,14 +1,17 @@
-#+TITLE:useLess
+#+TITLE:useless
+
+* Dependencies
+  - libgc-dev
 
 * Todo
-  - list.copy
-  - Multiple return statements in a function dont work
   - Finish Standard Library
+  - Finish gfx Binding
   - Add support for negative numbers (lexer)
   - Check if lexer result contains errors
-  - list map implementation and usage
   - Multifile support
   - Empty string do not work
   - console.readln doesnt accept empty strings
-  - Create documentation
-  - Add support for reference passing
+  - Create simple documentation
+  - Multiple return statements dont work when used in list.do or dotimes 
+  - Remove all frees
+  - Crashes when  directory is passed as path

@@ -11,8 +11,7 @@ node_evaluate_symbol (scope_t **scope, node_t *node)
     symbol_t *sym = scope_lookup (scope[ 0 ], node->value.string);
     if (sym)
         return sym->node;
-    error_custom ("Symbol \"%s\" was not found",
-                  node->value.string);
+    error_custom ("Symbol \"%s\" was not found", node->value.string);
 
     return NULL;
 }
@@ -25,10 +24,11 @@ node_evaluate_list_symbol (scope_t **scope, node_t *node)
     if (node->children[ 0 ]->type == type_list_symbol)
     {
         node_t *last = NULL;
-        for (u32 i = 0; i < node->children_count && !scope[ 0 ]->flag_return;
+        for (u32 i = 0; i < node->children_count && !scope[ 0 ]->node_return;
              i++)
             last = node_evaluate (scope, node->children[ i ]);
-
+        if (scope[ 0 ]->node_return)
+            return scope[ 0 ]->node_return;
         return last;
     }
 
@@ -71,7 +71,6 @@ node_evaluate_list_symbol (scope_t **scope, node_t *node)
                         node_evaluate (scope, arguments->children[ i ])));
             }
             node_t *result = node_evaluate (scope, function->children[ 1 ]);
-            scope[ 0 ]->flag_return = false;
             scope[ 0 ] = scope_pop (scope[ 0 ]);
             return result;
         }
@@ -122,10 +121,12 @@ node_evaluate_string (scope_t **scope, node_t *node)
 node_t *
 node_evaluate (scope_t **scope, node_t *node)
 {
+    if (!node)
+        return NULL;
     switch (node->type)
     {
     case type_number:
-        return node;
+        return node_copy (node);
         break;
     case type_string:
         return node_evaluate_string (scope, node);
@@ -134,14 +135,13 @@ node_evaluate (scope_t **scope, node_t *node)
         return node_evaluate_symbol (scope, node);
         break;
     case type_internal:
-        return node; // Todo
+        return node;
         break;
     case type_list_symbol:
         return node_evaluate_list_symbol (scope, node);
         break;
     case type_list_argument:
     case type_list_data:
-    case type_list_map:
         return node;
         break;
     }

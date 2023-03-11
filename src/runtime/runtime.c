@@ -3,11 +3,16 @@
 #include "parser.h"
 #include <stdio.h>
 
-key_entry_t _internal_keys[]
-    = {{"==", "equal"}, {"!=", "not"}, {"=", "assign"}, {";", NULL},
-       {",", NULL},     {"(", NULL},   {")", NULL},     {"{", NULL},
-       {"}", NULL},     {"+", "add"},  {"-", "sub"},    {"*", "mul"},
-       {"/", "div"},    {"%", "mod"},  {":", "map"}};
+key_entry_t _internal_keys[] = {{"==", "equal"},      {"!=", "not"},
+                                {"<=", "less_equal"}, {">=", "greater_equal"},
+                                {"<", "less"},        {">", "greater"},
+                                {"=", "assign"},      {";", NULL},
+                                {",", NULL},          {"(", NULL},
+                                {")", NULL},          {"{", NULL},
+                                {"}", NULL},          {"+", "add"},
+                                {"-", "sub"},         {"*", "mul"},
+                                {"/", "div"},         {"%", "mod"},
+                                {":", "map"}};
 
 key_entry_t *keys;
 u32 keys_count;

@@ -44,6 +44,48 @@ std_dotimes (scope_t **scope, node_t *arguments, node_t *statements)
             }
             *scope = scope_pop (*scope);
         }
+        else
+        {
+            if (var->type != type_symbol)
+                error_argument_type ("dotimes", var->type, type_symbol);
+            else if (times->type != type_number)
+                error_argument_type ("dotimes", times->type, type_number);
+        }
     }
+    else if (arguments->children_count == 3)
+    {
+		node_t *var = arguments->children[ 0 ];
+        node_t *min = node_evaluate (scope, arguments->children[ 1 ]);
+        node_t *max = node_evaluate (scope, arguments->children[ 2 ]);
+        if (var->type == type_symbol && min->type == type_number && max->type == type_number)
+        {
+            *scope = scope_push (*scope);
+            symbol_t *sym
+                = symbol_create (var->value.string, node_new_number (NULL, 0));
+            scope_add (*scope, sym);
+            for (i32 i = (i32)min->value.number; i < (i32)max->value.number; i++)
+            {
+                if (sym->node->type == type_number)
+                    sym->node->value.number = i;
+                else
+                    error_custom ("dotimes", "Type of symbol got changed");
+
+                node_evaluate (scope, statements);
+            }
+            *scope = scope_pop (*scope);
+        }
+        else
+        {
+            if (var->type != type_symbol)
+                error_argument_type ("dotimes", var->type, type_symbol);
+            else if (min->type != type_number)
+                error_argument_type ("dotimes", min->type, type_number);
+            else if (max->type != type_number)
+                error_argument_type ("dotimes", max->type, type_number);
+        }
+    }
+    else
+        error_argument_count ("dotimes", arguments->children_count, 3);
+
     return NULL;
 }

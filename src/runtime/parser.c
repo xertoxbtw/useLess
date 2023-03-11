@@ -154,8 +154,6 @@ parser_visualize_node (FILE *f, node_t *root)
         fprintf (f, "<value>%s</value><type>Internal</type>",
                  root->value.string);
         break;
-    case type_list_map:
-        break;
     }
     fprintf (f, "<ul>");
     for (u32 i = 0; i < root->children_count; i++)

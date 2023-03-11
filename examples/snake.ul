@@ -1,53 +1,130 @@
-include("modules/tigr.um");
+include("modules/gfx.um");
 
 square_size = 16;
 playfield_size = 16;
-head_x = 4;
-head_y = 4;
+head_x = random(0,15);
+head_y = random(0,15);
+direction_x = 1;
+direction_y = 0;
+food_x = random(0,15);
+food_y = random(0,15);
 
-body = list(list(3,3), list(2,2));
+window = gfx.window(playfield_size * square_size, playfield_size * square_size, "Title", 0);
+body = list(list(head_x - direction_x, head_y - direction_y));
+
+input = function()
+{
+	# Left
+	if(gfx.keyHeld(window, 170), direction_x != 1)
+	{
+		direction_x = 0-1;
+		direction_y = 0;
+	}
+	# Up
+	elif(gfx.keyHeld(window, 171), direction_y != 1)
+	{
+		direction_x = 0;
+		direction_y = 0-1;
+	}
+	# Right
+	elif(gfx.keyHeld(window, 172), direction_x != 0 - 1)
+	{
+		direction_x = 1;
+		direction_y = 0;
+	}
+	# Down
+	elif(gfx.keyHeld(window, 173), direction_y != 0 - 1)
+	{
+		direction_x = 0;
+		direction_y = 1;
+	}
+
+	# Collision Check
+	list.do (i, body)
+	{
+		this.x = list.get(i,0);
+		this.y = list.get(i,1);
+		if(head_x == this.x, head_y == this.y)
+		{
+			# Gameover
+			body = list();
+		}
+	}
+
+	# Food hit
+	if(head_x == food_x, head_y == food_y)
+	{
+		last = list.get(body, length(body) - 1);
+		list.append(body, list(list.get(last, 0) - direction_x, list.get(last,1) - direction_y));
+		food_x = random(0,15);
+		food_y = random(0,15);
+	}
+};
 
 update = function()
 {
-   	# head_x = head_x + 1;
-	# head_y = head_y + 1;
+	if(head_x < 0)
+	{
+		head_x = 15;
+	}
+	elif(head_x>15)
+	{
+		head_x = 0;
+	}
 
-	head_x = head_x % square_size;
-	head_y = head_y % square_size;
+	if(head_y < 0)
+	{
+		head_y = 15;
+	}
+	elif(head_y>15)
+	{
+		head_y = 0;
+	}
 
 	last = list(head_x, head_y);
-	list.do (part, body)
+	i = 0;
+	while(i < length(body))
 	{
-		current = list.copy(part);
-		part = list.copy(last);
-		last = current;
+		current = list.get(body, i);
+		list.set(body, i, list.copy(last));
+		last = list.copy(current);
+		i = i + 1;
 	}
+	
+   	head_x = head_x + direction_x;
+	head_y = head_y + direction_y;
+
 };
 
 display = function ()
 {
-	tigr.clear(window,list(255,255,255));
+	gfx.clear(window,list(255,255,255));
 
-	tigr.fillRect(window, head_x * square_size, head_y * square_size, square_size, square_size, list(255,0,0,255));
+	gfx.rect(window, head_x * square_size, head_y * square_size, square_size, square_size, list(255,0,0,255));
 	list.do(parts, body)
 	{
-		tigr.fillRect(window, list.get(parts,0) * square_size, list.get(parts,1) * square_size, square_size, square_size, list(0,255,0,255));
+		gfx.rect(window, list.get(parts,0) * square_size, list.get(parts,1) * square_size, square_size, square_size, list(0,255,0,255));
 	}
 
-	tigr.update(window);
+	gfx.rect(window, food_x * square_size, food_y * square_size, square_size, square_size, list(0,128,255,255));
+
+	gfx.update(window);
 };
 
 main = function ()
 {
-	window = tigr.window(playfield_size * square_size, playfield_size * square_size, "Title", 0);
-
-	while(tigr.closed(window) == 0)
-	{	
+	framerate = 12;
+	while(gfx.closed(window) == 0)
+	{
+		input();
 		update();
 		display();
+		
+		gfx.sleep(1/framerate);
+
 	}
 
-	tigr.free(window);
+	gfx.close(window);
 };
 
 main ();

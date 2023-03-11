@@ -1,6 +1,7 @@
 #include "binding.h"
 #include "tigr.h"
 #include <stdio.h>
+#include <unistd.h>
 
 TPixel
 getColor (scope_t **scope, node_t *list)
@@ -19,7 +20,7 @@ getColor (scope_t **scope, node_t *list)
 }
 
 node_t *
-tigr_window (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_window (scope_t **scope, node_t *arguments, node_t *statements)
 {
     Tigr *window = NULL;
     if (arguments->children_count == 4)
@@ -44,18 +45,18 @@ tigr_window (scope_t **scope, node_t *arguments, node_t *statements)
         }
     }
 
-    error_argument_count ("tigr.window", arguments->children_count, 4);
+    error_argument_count ("gfx.window", arguments->children_count, 4);
     return NULL;
 }
 
 node_t *
-tigr_bitmap (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_bitmap (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_free (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_close (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 1)
     {
@@ -70,12 +71,12 @@ tigr_free (scope_t **scope, node_t *arguments, node_t *statements)
         }
     }
     else
-        error_argument_count ("tigr.free", arguments->children_count, 1);
+        error_argument_count ("gfx.close", arguments->children_count, 1);
     return NULL;
 }
 
 node_t *
-tigr_closed (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_closed (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 1)
     {
@@ -90,12 +91,12 @@ tigr_closed (scope_t **scope, node_t *arguments, node_t *statements)
         }
     }
     else
-        error_argument_count ("tigr.free", arguments->children_count, 1);
+        error_argument_count ("gfx.free", arguments->children_count, 1);
     return NULL;
 }
 
 node_t *
-tigr_update (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_update (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 1)
     {
@@ -112,13 +113,13 @@ tigr_update (scope_t **scope, node_t *arguments, node_t *statements)
     }
     else
     {
-        error_argument_count ("tigr.update", arguments->children_count, 1);
+        error_argument_count ("gfx.update", arguments->children_count, 1);
     }
     return NULL;
 }
 
 node_t *
-tigr_clear (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_clear (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 2)
     {
@@ -138,31 +139,25 @@ tigr_clear (scope_t **scope, node_t *arguments, node_t *statements)
     }
     else
     {
-        error_argument_count ("tigr.clear", arguments->children_count, 2);
+        error_argument_count ("gfx.clear", arguments->children_count, 2);
     }
     return NULL;
 }
 
 node_t *
-tigr_fill (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_fill (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_line (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_line (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_rect (scope_t **scope, node_t *arguments, node_t *statements)
-{
-    return NULL;
-}
-
-node_t *
-tigr_fillrect (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_rect (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 6)
     {
@@ -191,67 +186,117 @@ tigr_fillrect (scope_t **scope, node_t *arguments, node_t *statements)
     }
     else
     {
-        error_argument_count ("tigr.fillRect", arguments->children_count, 6);
+        error_argument_count ("gfx.fillRect", arguments->children_count, 6);
     }
     return NULL;
 }
 
 node_t *
-tigr_circle (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_circle (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_fillcircle (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_blitalpha (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_clip (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_color (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_blit (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_print (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_blitalpha (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_mouse (scope_t **scope, node_t *arguments, node_t *statements)
 {
     return NULL;
 }
 
 node_t *
-tigr_color (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_keydown (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    if (arguments->children_count == 2)
+    {
+        node_t *bmp = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *key = node_evaluate (scope, arguments->children[ 1 ]);
+        if (bmp->type == type_internal)
+        {
+            if (key->type == type_number)
+            {
+                return node_new_number (
+                    NULL, tigrKeyDown (bmp->value.raw, key->value.number));
+            }
+            else if (key->type == type_string)
+            {
+                return node_new_number (
+                    NULL, tigrKeyDown (bmp->value.raw, key->value.string[ 0 ]));
+            }
+            else
+                error_argument_type ("gfx.keyDown", key->type, type_number);
+        }
+        else
+            error_argument_type_custom ("gfx.keyDown", bmp->type,
+                                        "gfx.window");
+    }
+    else
+        error_argument_count ("gfx.keyDown", arguments->children_count, 2);
     return NULL;
 }
 
 node_t *
-tigr_print (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_keyheld (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    if (arguments->children_count == 2)
+    {
+        node_t *bmp = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *key = node_evaluate (scope, arguments->children[ 1 ]);
+        if (bmp->type == type_internal)
+        {
+            if (key->type == type_number)
+            {
+                return node_new_number (
+                    NULL, tigrKeyHeld (bmp->value.raw, key->value.number));
+            }
+            else if (key->type == type_string)
+            {
+                return node_new_number (
+                    NULL, tigrKeyHeld (bmp->value.raw, key->value.string[ 0 ]));
+            }
+            else
+                error_argument_type ("gfx.keyHeld", key->type, type_number);
+        }
+        else
+            error_argument_type_custom ("gfx.keyHeld", bmp->type,
+                                        "gfx.window");
+    }
+    else
+        error_argument_count ("gfx.keyHeld", arguments->children_count, 2);
     return NULL;
 }
 
 node_t *
-tigr_mouse (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_sleep (scope_t **scope, node_t *arguments, node_t *statements)
 {
-    return NULL;
-}
-
-node_t *
-tigr_keydown (scope_t **scope, node_t *arguments, node_t *statements)
-{
-    return NULL;
-}
-
-node_t *
-tigr_keyheld (scope_t **scope, node_t *arguments, node_t *statements)
-{
+    if (arguments->children_count == 1)
+    {
+        node_t *time = node_evaluate (scope, arguments->children[ 0 ]);
+        if (time->type == type_number)
+        {
+            usleep (time->value.number * 1000000);
+        }
+        else
+            error_argument_type ("gfx.sleep", time->type, type_number);
+    }
+    else
+        error_argument_count ("gfx.sleep", arguments->children_count, 1);
     return NULL;
 }

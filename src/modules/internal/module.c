@@ -13,11 +13,21 @@ print_symbols (scope_t *scope)
 node_t *
 internal_symbols (scope_t **scope, node_t *arguments, node_t *statements)
 {
-	print_symbols(*scope);
+    print_symbols (*scope);
     return NULL;
 }
 
-symbol_definition_t symbols[] = {{"internal.symbols", internal_symbols}, NULL};
+node_t *
+internal_pointer (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    for (u32 i = 0; i < arguments->children_count; i++)
+        printf ("%p\n", arguments->children[ i ]);
+    return NULL;
+}
+
+symbol_definition_t symbols[] = {{"internal.symbols", internal_symbols},
+                                 {"internal.pointer", internal_pointer},
+                                 NULL};
 
 symbol_definition_t *
 module_init (void)

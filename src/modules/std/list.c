@@ -12,6 +12,29 @@ std_list (scope_t **scope, node_t *arguments, node_t *statements)
 }
 
 node_t *
+std_list_new (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    node_t *root = node_new_list_data (NULL);
+    if (arguments->children_count == 1)
+    {
+        node_t *count = node_evaluate (scope, arguments->children[ 0 ]);
+        if (count->type == type_number)
+        {
+            for (u32 i = 0; i < count->value.number; i++)
+            {
+                node_new_number (root, 0);
+            }
+        }
+        else
+            error_argument_type ("list.new", count->type, type_number);
+    }
+    else
+        error_argument_count ("list.new", arguments->children_count, 1);
+
+    return root;
+}
+
+node_t *
 std_list_get (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 2)
@@ -30,9 +53,6 @@ std_list_get (scope_t **scope, node_t *arguments, node_t *statements)
             }
             else
                 exit (1); // Error
-        }
-        else if (index->type == type_string)
-        {
         }
         else
             error_argument_type ("list.get", index->type, type_number);
@@ -54,7 +74,7 @@ std_list_set (scope_t **scope, node_t *arguments, node_t *statements)
         {
             if (index->type == type_number)
             {
-                node_free (list->children[ (u32)index->value.number ]);
+
                 list->children[ (u32)index->value.number ] = node;
             }
             else if (index->type == type_string)
@@ -118,7 +138,6 @@ std_list_do (scope_t **scope, node_t *arguments, node_t *statements)
         {
             sym->node = node_copy (b->children[ i ]);
             node_evaluate (scope, statements);
-            node_remove (sym->node);
         }
         *scope = scope_pop (*scope);
     }
@@ -151,13 +170,17 @@ std_list_range (scope_t **scope, node_t *arguments, node_t *statements)
 node_t *
 std_list_copy (scope_t **scope, node_t *arguments, node_t *statements)
 {
-	TODO("Implement");
-	return NULL;
-}
+    if (arguments->children_count == 1)
+    {
+        node_t *list = node_evaluate (scope, arguments->children[ 0 ]);
+        if (list->type == type_list_data)
+            return node_copy (list);
+        else
+            error_argument_type ("list.copy", list->type, type_list_data);
+    }
+    else
+        error_argument_count ("list.copy", arguments->children_count, 1);
 
-node_t *
-std_map (scope_t **scope, node_t *arguments, node_t *statements)
-{
     return NULL;
 }
 
@@ -171,8 +194,12 @@ std_length (scope_t **scope, node_t *arguments, node_t *statements)
         {
             return node_new_number (NULL, node->children_count);
         }
+        else if (node->type == type_string)
+        {
+            return node_new_number (NULL, strlen (node->value.string));
+        }
         else
-            TODO ("Add other types");
+            error_argument_type ("length", node->type, type_list_data);
     }
     else
         error_argument_count ("length", arguments->children_count, 1);
