@@ -46,8 +46,9 @@ input = function()
 		this.y = list.get(i,1);
 		if(head_x == this.x, head_y == this.y)
 		{
-			# Gameover
-			body = list();
+			console.println("Gameover");
+			console.println("Score: ", length(body) * 100);
+			exit();
 		}
 	}
 
@@ -57,7 +58,7 @@ input = function()
 		last = list.get(body, length(body) - 1);
 		list.append(body, list(list.get(last, 0) - direction_x, list.get(last,1) - direction_y));
 		food_x = random(0,15);
-		food_y = random(0,15);
+		food_y = random(0,15);	
 	}
 };
 

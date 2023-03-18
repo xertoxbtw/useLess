@@ -19,8 +19,3 @@ xreallocarray (void *ptr, size_t nmemb, size_t size)
 {
     return GC_realloc(ptr, nmemb * size);
 }
-
-void xfree(void *ptr)
-{
-	GC_free(ptr);
-}

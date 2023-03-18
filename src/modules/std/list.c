@@ -12,29 +12,6 @@ std_list (scope_t **scope, node_t *arguments, node_t *statements)
 }
 
 node_t *
-std_list_new (scope_t **scope, node_t *arguments, node_t *statements)
-{
-    node_t *root = node_new_list_data (NULL);
-    if (arguments->children_count == 1)
-    {
-        node_t *count = node_evaluate (scope, arguments->children[ 0 ]);
-        if (count->type == type_number)
-        {
-            for (u32 i = 0; i < count->value.number; i++)
-            {
-                node_new_number (root, 0);
-            }
-        }
-        else
-            error_argument_type ("list.new", count->type, type_number);
-    }
-    else
-        error_argument_count ("list.new", arguments->children_count, 1);
-
-    return root;
-}
-
-node_t *
 std_list_get (scope_t **scope, node_t *arguments, node_t *statements)
 {
     if (arguments->children_count == 2)
@@ -52,7 +29,7 @@ std_list_get (scope_t **scope, node_t *arguments, node_t *statements)
                 return var->children[ ind ];
             }
             else
-                exit (1); // Error
+                error_custom ("Index is out of bounds");
         }
         else
             error_argument_type ("list.get", index->type, type_number);
@@ -76,9 +53,6 @@ std_list_set (scope_t **scope, node_t *arguments, node_t *statements)
             {
 
                 list->children[ (u32)index->value.number ] = node;
-            }
-            else if (index->type == type_string)
-            {
             }
             else
                 error_argument_type ("list.set", index->type, type_number);
@@ -116,6 +90,30 @@ std_list_append (scope_t **scope, node_t *arguments, node_t *statements)
 node_t *
 std_list_remove (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    if (arguments->children_count == 2)
+    {
+        node_t *list = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *index = node_evaluate (scope, arguments->children[ 1 ]);
+        if (list->type == type_list_data && index->type == type_number)
+        {
+            node_t *new = node_new_list_data (NULL);
+            for (u32 i = 0; i < list->children_count; i++)
+            {
+                if (i != (u32)index->value.number)
+                {
+                    node_insert (new, node_copy (list->children[ i ]));
+                }
+            }
+            return new;
+        }
+        else if (list->type != type_list_data)
+            error_argument_type ("list.remove", list->type, type_list_data);
+        else if (index->type != type_number)
+            error_argument_type ("list.remove", index->type, type_number);
+    }
+    else
+        error_argument_count ("list.remove", arguments->children_count, 2);
+
     return NULL;
 }
 

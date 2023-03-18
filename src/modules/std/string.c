@@ -12,13 +12,6 @@ str_copy (const char *base)
 }
 
 node_t *
-std_string_format (scope_t **scope, node_t *arguments, node_t *statements)
-{
-
-    return NULL;
-}
-
-node_t *
 std_string_split (scope_t **scope, node_t *arguments, node_t *statements)
 {
     node_t *root = node_new_list_data (NULL);
@@ -36,7 +29,7 @@ std_string_split (scope_t **scope, node_t *arguments, node_t *statements)
                 token = strtok (NULL, delim_node->value.string);
             }
 
-			return root;
+            return root;
         }
         else
             error_argument_type ("string.split",
@@ -54,5 +47,27 @@ node_t *
 std_string_replace (scope_t **scope, node_t *arguments, node_t *statements)
 {
     char *buffer = NULL;
+    return node_new_string_raw (NULL, buffer);
+}
+
+node_t *
+std_string_append (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    char *buffer = xcalloc (1, sizeof (char));
+    u32 buffer_len = 0;
+    for (u32 i = 0; i < arguments->children_count; i++)
+    {
+        node_t *current = node_evaluate (scope, arguments->children[ i ]);
+        if (current->type == type_string)
+        {
+            u32 start_index = buffer_len;
+            buffer_len += strlen (current->value.string);
+            buffer = xreallocarray (buffer, buffer_len + 1, sizeof (char));
+            strncpy (buffer + start_index, current->value.string,
+                     strlen (current->value.string));
+        }
+        else
+            error_argument_type ("string.append", current->type, type_string);
+    }
     return node_new_string_raw (NULL, buffer);
 }

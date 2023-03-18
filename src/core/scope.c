@@ -1,4 +1,5 @@
 #include "core.h"
+#include "runtime.h"
 
 scope_t *
 scope_push (scope_t *scope)
@@ -15,10 +16,8 @@ scope_push (scope_t *scope)
 scope_t *
 scope_pop (scope_t *scope)
 {
-
     scope_t *new = scope->previous;
     new->next = NULL;
-    free (scope);
     return new;
 }
 

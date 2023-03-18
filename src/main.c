@@ -1,5 +1,4 @@
-#include "lexer.h"
-#include "runtime.h"
+#include "core/runtime.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,19 +30,14 @@ main (const int argc, const char **argv)
         }
         else
         {
-            ERROR ("No valid argument was passed");
+            error_custom ("No valid argument was passed");
         }
     }
 
     if (file_path)
-    {
         runtime_execute_file (runtime, file_path);
-    }
     else
-    {
-        ERROR ("No file path was passed");
-    }
+		error_custom("No file was passed");
 
-    free (runtime);
     return 0;
 }

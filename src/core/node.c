@@ -49,19 +49,6 @@ node_copy (node_t *node)
 }
 
 node_t *
-node_new (node_t *parent, char *value)
-{
-    return node_insert (parent, xcalloc (1, sizeof (node_t)));
-}
-
-node_t *
-node_new_type (node_t *parent, char *value, node_type type)
-{
-    node_t *node = xcalloc (1, sizeof (node_t));
-    return node_insert (parent, node);
-}
-
-node_t *
 node_new_number (node_t *parent, double number)
 {
     node_t *node = xcalloc (1, sizeof (node_t));
@@ -102,6 +89,19 @@ node_new_symbol (node_t *parent, char *symbol)
 {
     node_t *node = xcalloc (1, sizeof (node_t));
     node->type = type_symbol;
+
+    u32 len = strlen (symbol);
+    node->value.string = xcalloc (len + 1, sizeof (char));
+    strncpy (node->value.string, symbol, len);
+
+    return node_insert (parent, node);
+}
+
+node_t *
+node_new_key (node_t *parent, char *symbol)
+{
+    node_t *node = xcalloc (1, sizeof (node_t));
+    node->type = type_key;
 
     u32 len = strlen (symbol);
     node->value.string = xcalloc (len + 1, sizeof (char));

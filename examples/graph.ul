@@ -1,0 +1,23 @@
+include ("modules/gfx.um");
+
+window = gfx.window(800,600,"graph", 0);
+
+draw_graph = function()
+{
+	last_x = -800; 
+	last_y = 600;
+	dotimes(x,800)
+	{
+		value = mul(x-400,0.05)^2;
+		gfx.line(window, last_x, last_y, x,600- value, gfx.color(255,0,0));
+		last_x = x;
+		last_y = 600-value;
+	}
+}
+
+while(gfx.closed(window) == 0)
+{
+	gfx.clear(window, gfx.color(255,255,255));
+	draw_graph();
+	gfx.update(window);
+}

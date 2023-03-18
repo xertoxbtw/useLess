@@ -1,10 +1,9 @@
-#include "parser.h"
-#include "lexer.h"
-#include "runtime.h"
+#include "core.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include "runtime.h"
 
 node_t *
 parser (lexer_result_t *lexer)
@@ -22,7 +21,7 @@ parser_parse (lexer_result_t *lexer)
 
     for (u32 i = 0; i < lexer->count; i++)
     {
-        if (lexer->entries[ i ].type == lexer_key) // Key
+        if (lexer->entries[ i ].type == type_key) // Key
         {
             if (lexer->entries[ i ].content[ 0 ] == '(')
             {
@@ -31,7 +30,7 @@ parser_parse (lexer_result_t *lexer)
             else if (lexer->entries[ i ].content[ 0 ] == ')')
             {
                 if (i + 1 < lexer->count - 1
-                    && lexer->entries[ i + 1 ].type == lexer_key
+                    && lexer->entries[ i + 1 ].type == type_key
                     && lexer->entries[ i + 1 ].content[ 0 ] == '{')
                     current = current->parent;
                 else
@@ -51,16 +50,16 @@ parser_parse (lexer_result_t *lexer)
             }
             else
             {
-                node_new_internal (current,
+                node_new_key (current,
                                    (void *)lexer->entries[ i ].content);
             }
         }
         else
         {
             if (i + 1 < lexer->count - 1
-                && lexer->entries[ i + 1 ].type == lexer_key)
+                && lexer->entries[ i + 1 ].type == type_key)
             {
-                if (lexer->entries[ i ].type == lexer_symbol
+                if (lexer->entries[ i ].type == type_symbol
                     && lexer->entries[ i + 1 ].content[ 0 ]
                         == '(') // Function call
                 {
@@ -68,15 +67,15 @@ parser_parse (lexer_result_t *lexer)
                 }
             }
 
-            if (lexer->entries[ i ].type == lexer_symbol) // Symbol
+            if (lexer->entries[ i ].type == type_symbol) // Symbol
             {
                 node_new_symbol (current, lexer->entries[ i ].content);
             }
-            else if (lexer->entries[ i ].type == lexer_string) // String
+            else if (lexer->entries[ i ].type == type_string) // String
             {
                 node_new_string (current, lexer->entries[ i ].content);
             }
-            else if (lexer->entries[ i ].type == lexer_number) // Number
+            else if (lexer->entries[ i ].type == type_number) // Number
             {
                 double num = atof (lexer->entries[ i ].content);
                 node_new_number (current, num);
@@ -93,7 +92,7 @@ parser_transform (node_t *root)
         return;
     for (i32 i = root->children_count - 1; i >= 0; i--)
     {
-        if (root->children[ i ]->type == type_internal)
+        if (root->children[ i ]->type == type_key)
         {
             node_t *key = root->children[ i ];
             root->children[ i ] = node_new_list_symbol (NULL);
@@ -119,7 +118,7 @@ parser_transform (node_t *root)
             node_insert (args, right_side);
             i--;
         }
-        if (root->children[ i ]->type == type_list_symbol
+        if (root && root->children[ i ]->type == type_list_symbol
             || root->children[ i ]->type == type_list_argument
             || root->children[ i ]->type == type_list_data)
             parser_transform (root->children[ i ]);
@@ -152,6 +151,10 @@ parser_visualize_node (FILE *f, node_t *root)
         break;
     case type_internal:
         fprintf (f, "<value>%s</value><type>Internal</type>",
+                 root->value.string);
+        break;
+    case type_key:
+        fprintf (f, "<value>%s</value><type>Key</type>",
                  root->value.string);
         break;
     }

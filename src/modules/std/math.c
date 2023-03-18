@@ -1,4 +1,5 @@
 #include "std.h"
+#include <math.h>
 #include <stdio.h>
 
 node_t *
@@ -101,5 +102,27 @@ std_math_mod (scope_t **scope, node_t *arguments, node_t *statements)
     }
     else
         error_argument_count ("mod", arguments->children_count, 2);
+    return NULL;
+}
+
+node_t *
+std_math_pow (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    if (arguments->children_count == 2)
+    {
+        node_t *a = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *b = node_evaluate (scope, arguments->children[ 1 ]);
+
+        if (a->type == type_number && b->type == type_number)
+        {
+            return node_new_number (NULL,
+                                    powf (a->value.number, b->value.number));
+        }
+        else
+            error_argument_type (
+                "pow", a->type == type_number ? b->type : a->type, type_number);
+    }
+    else
+        error_argument_count ("pow", arguments->children_count, 2);
     return NULL;
 }

@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "core.h"
 #include "runtime.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -42,8 +42,13 @@ remove_trivial_chars (const char *buffer, u64 *len)
 }
 
 void
-lexer_add (lexer_result_t *result, char *str, lexer_type type)
+lexer_add (lexer_result_t *result, char *str, node_type type)
 {
+    if (type == type_key && str[ 0 ] == '-' && str[ 1 ] == 0
+        && result->entries[ result->count - 1 ].type == type_key)
+    {
+        lexer_add (result, "0", type_number);
+    }
     if (result->entries != NULL)
         result->entries = xreallocarray (result->entries, result->count + 1,
                                          sizeof (lexer_entry_t));
@@ -92,18 +97,18 @@ lexer_tokenize (const char *buffer_input)
                     strncpy (tmp, buffer + start_index, local_len);
 
                     if (tmp[ 0 ] == '"')
-                        lexer_add (result, tmp, lexer_string);
+                        lexer_add (result, tmp, type_string);
                     else if (tmp[ 0 ] >= '0' && tmp[ 0 ] <= '9')
-                        lexer_add (result, tmp, lexer_number);
+                        lexer_add (result, tmp, type_number);
                     else
-                        lexer_add (result, tmp, lexer_symbol);
+                        lexer_add (result, tmp, type_symbol);
                 }
 
                 // Add Key
                 char *key_buffer
                     = xcalloc (strlen (keys[ key ].key) + 1, sizeof (char));
                 strncpy (key_buffer, keys[ key ].key, strlen (keys[ key ].key));
-                lexer_add (result, key_buffer, lexer_key);
+                lexer_add (result, key_buffer, type_key);
 
                 u32 key_len = strlen (keys[ key ].key);
                 if (key_len > 1)
@@ -113,11 +118,10 @@ lexer_tokenize (const char *buffer_input)
                 }
                 else
                     start_index = i + 1;
-				break;
+                break;
             }
         }
     }
-    free (buffer);
     return result;
 }
 
@@ -136,15 +140,4 @@ lexer_check (lexer_result_t *lexer_result)
         || brackets_count_curly)
         return false;
     return true;
-}
-
-void
-lexer_free (lexer_result_t *result)
-{
-    for (u32 i = 0; i < result->count; i++)
-    {
-        free (result->entries[ i ].content);
-    }
-    free (result->entries);
-    free (result);
 }

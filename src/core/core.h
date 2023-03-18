@@ -5,20 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ERROR(msg)                         \
-    fprintf (stderr, "[Error] %s\n", msg); \
-    exit (1)
-
-#define TODO(msg)                                                       \
-    fprintf (stderr, "[TODO] %s:%i \"%s\"\n", __FILE__, __LINE__, msg); \
-    exit (16)
-
-#define free(ptr) xfree(ptr)
-
 void *xcalloc (size_t nmemb, size_t size);
 void *xrealloc (void *ptr, size_t size);
 void *xreallocarray (void *ptr, size_t nmemb, size_t size);
-void xfree (void *ptr);
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -39,10 +28,29 @@ typedef enum
     type_string,
     type_symbol,
     type_internal,
+    type_key,
     type_list_argument,
     type_list_data,
     type_list_symbol
 } node_type;
+
+typedef struct
+{
+    const char *key;
+    const char *function_name;
+} key_entry_t;
+
+typedef struct
+{
+    char *content;
+    node_type type;
+} lexer_entry_t;
+
+typedef struct
+{
+    lexer_entry_t *entries;
+    u64 count;
+} lexer_result_t;
 
 typedef struct node_t
 {
@@ -84,12 +92,11 @@ typedef struct symbol_definition_t
 
 node_t *node_insert (node_t *parent, node_t *node);
 node_t *node_copy (node_t *node);
-node_t *node_new (node_t *parent, char *value);
-node_t *node_new_type (node_t *parent, char *value, node_type type);
 node_t *node_new_number (node_t *parent, double number);
 node_t *node_new_string (node_t *parent, char *string);
 node_t *node_new_string_raw (node_t *parent, char *string);
 node_t *node_new_symbol (node_t *parent, char *symbol);
+node_t *node_new_key (node_t *parent, char *symbol);
 node_t *node_new_internal (node_t *parent,
                            node_t *(*func) (scope_t **, node_t *, node_t *));
 node_t *node_new_internal_custom (node_t *parent, void *ptr);
@@ -115,3 +122,12 @@ void error_argument_type_custom (char *symbol, node_type got, char *expected);
 void error_custom (char *format, ...);
 
 i32 module_load (scope_t *scope, char *path);
+
+lexer_result_t *lexer (const char *buffer);
+lexer_result_t *lexer_tokenize (const char *buffer);
+bool lexer_check (lexer_result_t *lexer_result);
+
+node_t *parser (lexer_result_t *lexer);
+node_t *parser_parse (lexer_result_t *lexer);
+void parser_transform (node_t *root);
+void parser_visualize (FILE *file, node_t *root);

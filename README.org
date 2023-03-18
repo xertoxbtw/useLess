@@ -4,14 +4,14 @@
   - libgc-dev
 
 * Todo
-  - Finish Standard Library
+  - Finish Standard Library (string.replace)
   - Finish gfx Binding
-  - Add support for negative numbers (lexer)
+	- gfx.bitmap
+	- gfx.blit
+	- gfx.print
+	- gfx.mouse
   - Check if lexer result contains errors
-  - Multifile support
   - Empty string do not work
   - console.readln doesnt accept empty strings
-  - Create simple documentation
   - Multiple return statements dont work when used in list.do or dotimes 
-  - Remove all frees
-  - Crashes when  directory is passed as path
+  - More examples

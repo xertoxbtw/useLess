@@ -7,7 +7,6 @@ node_t *gfx_close (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *gfx_closed (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *gfx_update (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *gfx_clear (scope_t **scope, node_t *arguments, node_t *statements);
-node_t *gfx_fill (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *gfx_line (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *gfx_rect (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *gfx_circle (scope_t **scope, node_t *arguments, node_t *statements);

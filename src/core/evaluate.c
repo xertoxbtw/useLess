@@ -112,7 +112,6 @@ node_evaluate_string (scope_t **scope, node_t *node)
         }
     }
 
-    free (node->value.string);
     node->value.string = buffer;
 
     return node;
@@ -143,6 +142,8 @@ node_evaluate (scope_t **scope, node_t *node)
     case type_list_argument:
     case type_list_data:
         return node;
+        break;
+    case type_key:
         break;
     }
 

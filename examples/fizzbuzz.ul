@@ -1,0 +1,24 @@
+fizzbuzz = function(i)
+{
+	if(mod(i, 3) == 0, mod(i, 5) == 0)
+	{
+		console.println("FizzBuzz");
+	}
+	elif(mod(i, 3)==0)
+	{
+		console.println("Fizz");
+	}
+	elif(mod(i, 5) == 0)
+	{
+		console.println("Buzz");
+	}
+	elif(1)
+	{
+		console.println(i);
+	}
+}
+
+dotimes(i, 32)
+{
+	fizzbuzz(i);
+}

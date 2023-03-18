@@ -51,14 +51,15 @@ std_include (scope_t **scope, node_t *arguments, node_t *statements)
 {
     for (u32 i = 0; i < arguments->children_count; i++)
     {
-        node_t *current = node_evaluate (scope, arguments->children[ i ]);
-        if (current->type == type_string)
+        node_t *path = node_evaluate (scope, arguments->children[ i ]);
+
+        if (path->type == type_string)
         {
-            module_load (*scope, current->value.string);
+            module_load (*scope, path->value.string);
         }
         else
         {
-            error_argument_type ("include", current->type, type_string);
+            error_argument_type ("include", path->type, type_string);
         }
     }
     return NULL;
@@ -126,5 +127,25 @@ std_random (scope_t **scope, node_t *arguments, node_t *statements)
     {
         error_argument_count ("random", arguments->children_count, 2);
     }
+    return NULL;
+}
+
+node_t *
+std_exit (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    if (arguments->children_count == 0)
+    {
+        exit (0);
+    }
+    else if (arguments->children_count == 1)
+    {
+        node_t *code = node_evaluate (scope, arguments->children[ 0 ]);
+        if (code->type == type_number)
+            exit ((i32)code->value.number);
+        else
+            error_argument_type ("exit", code->type, type_number);
+    }
+    else
+        error_argument_count ("exit", arguments->children_count, 1);
     return NULL;
 }

@@ -1,7 +1,10 @@
 #include "runtime.h"
-#include "lexer.h"
-#include "parser.h"
+#include "core.h"
+#include <stdbool.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 key_entry_t _internal_keys[] = {{"==", "equal"},      {"!=", "not"},
                                 {"<=", "less_equal"}, {">=", "greater_equal"},
@@ -12,7 +15,7 @@ key_entry_t _internal_keys[] = {{"==", "equal"},      {"!=", "not"},
                                 {"}", NULL},          {"+", "add"},
                                 {"-", "sub"},         {"*", "mul"},
                                 {"/", "div"},         {"%", "mod"},
-                                {":", "map"}};
+                                {"^", "pow"},         {":", "list.get"}};
 
 key_entry_t *keys;
 u32 keys_count;
@@ -29,6 +32,14 @@ runtime_init (void)
     return runtime;
 }
 
+bool
+isFile (const char *filePath)
+{
+    struct stat path;
+    stat (filePath, &path);
+    return S_ISREG (path.st_mode);
+}
+
 void
 runtime_execute_file (runtime_t *runtime, const char *path)
 {
@@ -36,10 +47,12 @@ runtime_execute_file (runtime_t *runtime, const char *path)
     u64 file_len = 0;
     char *buffer = NULL;
 
+    if (!isFile (path))
+        error_custom ("Path %s is not a file", path);
     file_ptr = fopen (path, "r");
     if (!file_ptr)
     {
-        ERROR ("Passed file was not found");
+        error_custom ("Path %s was not found", path);
     }
 
     fseek (file_ptr, 0, SEEK_END);
@@ -73,7 +86,4 @@ runtime_execute_file (runtime_t *runtime, const char *path)
                 node_evaluate (&runtime->scope, root_node->children[ i ]);
         }
     }
-
-    free (buffer);
-    lexer_free (lexer_result);
 }

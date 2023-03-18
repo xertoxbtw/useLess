@@ -1,7 +1,5 @@
 #pragma once
 #include "../core/core.h"
-#include "lexer.h"
-#include "parser.h"
 #include <stdbool.h>
 
 typedef struct runtime_t
@@ -13,12 +11,6 @@ typedef struct runtime_t
 
     bool flag_return;
 } runtime_t;
-
-typedef struct
-{
-    const char *key;
-    const char *function_name;
-} key_entry_t;
 
 extern key_entry_t *keys;
 extern u32 keys_count;

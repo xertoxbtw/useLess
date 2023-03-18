@@ -82,7 +82,7 @@ std_equal (scope_t **scope, node_t *arguments, node_t *statements)
             }
             else
             {
-                TODO ("Implement other types");
+                error_argument_type ("equal", a->type, type_number);
             }
         }
         else
