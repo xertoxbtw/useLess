@@ -17,7 +17,12 @@ draw_graph = function()
 
 while(gfx.closed(window) == 0)
 {
-	gfx.clear(window, gfx.color(255,255,255));
+	gfx.clear(window, gfx.color(0,0,0));
 	draw_graph();
+	mouse = gfx.mouse(window);
+	gfx.print(window, 0, 0, gfx.color(255,255,255),
+			  string.append(string(mouse:0),
+			                "/", string(mouse:1),
+							"/", string(mouse:2)));
 	gfx.update(window);
 }

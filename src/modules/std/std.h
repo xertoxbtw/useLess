@@ -7,6 +7,7 @@ node_t *std_include (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *std_return (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *std_random (scope_t **scope, node_t *arguments, node_t *statements);
 node_t *std_exit (scope_t **scope, node_t *arguments, node_t *statements);
+node_t *std_system (scope_t **scope, node_t *arguments, node_t *statements);
 
 /* loop.c */
 node_t *std_while (scope_t **scope, node_t *arguments, node_t *statements);
@@ -41,8 +42,6 @@ node_t *std_less_equal (scope_t **scope, node_t *arguments, node_t *statements);
 /* string.c */
 node_t *std_string_split (scope_t **scope, node_t *arguments,
                           node_t *statements);
-node_t *std_string_replace (scope_t **scope, node_t *arguments,
-                            node_t *statements);
 node_t *std_string_append (scope_t **scope, node_t *arguments,
                            node_t *statements);
 /* file.c */

@@ -9,13 +9,14 @@ symbol_definition_t symbols[] = {{"gfx.window", gfx_window},
                                  {"gfx.line", gfx_line},
                                  {"gfx.rect", gfx_rect},
                                  {"gfx.circle", gfx_circle},
-                                 {"gfx.blit", gfx_blitalpha},
+                                 {"gfx.image", gfx_image},
                                  {"gfx.color", gfx_color},
                                  {"gfx.print", gfx_print},
                                  {"gfx.mouse", gfx_mouse},
                                  {"gfx.keyDown", gfx_keydown},
                                  {"gfx.keyHeld", gfx_keyheld},
                                  {"gfx.sleep", gfx_sleep},
+								 {"gfx.loadImage", gfx_load_image},
                                  NULL};
 
 symbol_definition_t *

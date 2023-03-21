@@ -56,6 +56,23 @@ gfx_window (scope_t **scope, node_t *arguments, node_t *statements)
 node_t *
 gfx_bitmap (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    if (arguments->children_count == 2)
+    {
+        node_t *w = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *h = node_evaluate (scope, arguments->children[ 1 ]);
+        if (w->type == type_number && h->type == type_number)
+        {
+            return node_new_internal_custom (
+                NULL, tigrBitmap (w->value.number, h->value.number));
+        }
+        else
+            error_argument_type ("gfx.bitmap",
+                                 w->type == type_number ? h->type : w->type,
+                                 type_number);
+    }
+    else
+        error_argument_count ("gfx.bitmap", arguments->children_count, 2);
+
     return NULL;
 }
 
@@ -224,8 +241,8 @@ gfx_circle (scope_t **scope, node_t *arguments, node_t *statements)
                             (i32)y->value.number, (i32)r->value.number,
                             getColor (scope, color));
             tigrCircle (bmp->value.raw, (i32)x->value.number,
-                            (i32)y->value.number, (i32)r->value.number,
-                            getColor (scope, color));
+                        (i32)y->value.number, (i32)r->value.number,
+                        getColor (scope, color));
         }
         else
         {
@@ -240,8 +257,32 @@ gfx_circle (scope_t **scope, node_t *arguments, node_t *statements)
 }
 
 node_t *
-gfx_blitalpha (scope_t **scope, node_t *arguments, node_t *statements)
+gfx_image (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    if (arguments->children_count == 4)
+    {
+        node_t *bmp = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *img = node_evaluate (scope, arguments->children[ 1 ]);
+        node_t *x = node_evaluate (scope, arguments->children[ 2 ]);
+        node_t *y = node_evaluate (scope, arguments->children[ 3 ]);
+        if (bmp->type == type_internal && img->type == type_internal
+            && x->type == type_number && y->type == type_number)
+        {
+            Tigr *image = img->value.raw;
+            tigrBlitAlpha (bmp->value.raw, image, x->value.number,
+                           y->value.number, 0, 0, image->w, image->h, 1);
+        }
+        else if (bmp->type != type_internal)
+            error_argument_type_custom ("gfx.image", bmp->type, "gfx.window");
+        else if (img->type != type_internal)
+            error_argument_type_custom ("gfx.image", img->type, "gfx.bitmap");
+        else if (x->type != type_number)
+            error_argument_type ("gfx.image", x->type, type_number);
+        else if (y->type != type_number)
+            error_argument_type ("gfx.image", y->type, type_number);
+    }
+    else
+        error_argument_count ("gfx.image", arguments->children_count, 4);
     return NULL;
 }
 
@@ -337,12 +378,57 @@ gfx_color (scope_t **scope, node_t *arguments, node_t *statements)
 node_t *
 gfx_print (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    if (arguments->children_count == 5)
+    {
+        node_t *bmp = node_evaluate (scope, arguments->children[ 0 ]);
+        node_t *x = node_evaluate (scope, arguments->children[ 1 ]);
+        node_t *y = node_evaluate (scope, arguments->children[ 2 ]);
+        node_t *color = node_evaluate (scope, arguments->children[ 3 ]);
+        node_t *text = node_evaluate (scope, arguments->children[ 4 ]);
+        if (bmp->type == type_internal && x->type == type_number
+            && y->type == type_number && color->type == type_list_data
+            && text->type == type_string)
+        {
+            tigrPrint (bmp->value.raw, tfont, x->value.number, y->value.number,
+                       getColor (scope, color), text->value.string);
+        }
+        else if (bmp->type != type_internal)
+            error_argument_type_custom ("gfx.print", bmp->type, "gfx.window");
+        else if (x->type != type_number)
+            error_argument_type ("gfx.print", x->type, type_number);
+        else if (y->type != type_number)
+            error_argument_type ("gfx.print", y->type, type_number);
+        else if (color->type != type_list_data)
+            error_argument_type_custom ("gfx.print", color->type, "gfx.color");
+        else if (text->type != type_string)
+            error_argument_type ("gfx.print", text->type, type_string);
+    }
+    else
+        error_argument_count ("gfx.print", arguments->children_count, 5);
     return NULL;
 }
 
 node_t *
 gfx_mouse (scope_t **scope, node_t *arguments, node_t *statements)
 {
+    if (arguments->children_count == 1)
+    {
+        node_t *bmp = node_evaluate (scope, arguments->children[ 0 ]);
+        if (bmp->type == type_internal)
+        {
+            i32 x, y, buttons;
+            tigrMouse (bmp->value.raw, &x, &y, &buttons);
+            node_t *result = node_new_list_data (NULL);
+            node_new_number (result, x);
+            node_new_number (result, y);
+            node_new_number (result, buttons);
+            return result;
+        }
+        else
+            error_argument_type_custom ("gfx.mouse", bmp->type, "gfx.window");
+    }
+    else
+        error_argument_count ("gfx.mouse", arguments->children_count, 1);
     return NULL;
 }
 
@@ -421,5 +507,26 @@ gfx_sleep (scope_t **scope, node_t *arguments, node_t *statements)
     }
     else
         error_argument_count ("gfx.sleep", arguments->children_count, 1);
+    return NULL;
+}
+
+node_t *
+gfx_load_image (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    if (arguments->children_count == 1)
+    {
+        node_t *path = node_evaluate (scope, arguments->children[ 0 ]);
+        if (path->type == type_string)
+        {
+            void *value = tigrLoadImage (path->value.string);
+            if (value)
+                return node_new_internal_custom (NULL, value);
+            error_custom ("Failed loading image %s", path->value.string);
+        }
+        else
+            error_argument_type ("gfx.loadImage", path->type, type_string);
+    }
+    else
+        error_argument_count ("gfx.loadImage", arguments->children_count, 1);
     return NULL;
 }

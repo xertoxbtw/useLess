@@ -2,16 +2,5 @@
 
 * Dependencies
   - libgc-dev
-
-* Todo
-  - Finish Standard Library (string.replace)
-  - Finish gfx Binding
-	- gfx.bitmap
-	- gfx.blit
-	- gfx.print
-	- gfx.mouse
-  - Check if lexer result contains errors
-  - Empty string do not work
-  - console.readln doesnt accept empty strings
-  - Multiple return statements dont work when used in list.do or dotimes 
-  - More examples
+  - libgl-dev
+  - libglu-dev

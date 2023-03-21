@@ -44,13 +44,6 @@ std_string_split (scope_t **scope, node_t *arguments, node_t *statements)
 }
 
 node_t *
-std_string_replace (scope_t **scope, node_t *arguments, node_t *statements)
-{
-    char *buffer = NULL;
-    return node_new_string_raw (NULL, buffer);
-}
-
-node_t *
 std_string_append (scope_t **scope, node_t *arguments, node_t *statements)
 {
     char *buffer = xcalloc (1, sizeof (char));

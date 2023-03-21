@@ -1,0 +1,5 @@
+origin = console.readln("Enter the origin path: ");
+target = console.readln("Enter the target path: ");
+filecontent = file.read(origin);
+file.write(target,filecontent);
+console.println("File copied successfully");

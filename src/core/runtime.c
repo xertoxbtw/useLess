@@ -64,6 +64,8 @@ runtime_execute_file (runtime_t *runtime, const char *path)
     fclose (file_ptr);
 
     lexer_result_t *lexer_result = lexer (buffer);
+    if (!lexer_result)
+        error_custom ("Incorrect syntax was found");
     if (runtime->option_output_lexer)
     {
         for (u64 i = 0; i < lexer_result->count; i++)

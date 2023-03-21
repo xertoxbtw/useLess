@@ -55,12 +55,14 @@ std_include (scope_t **scope, node_t *arguments, node_t *statements)
 
         if (path->type == type_string)
         {
-            module_load (*scope, path->value.string);
+            if (module_load (*scope, path->value.string))
+            {
+                error_custom ("Failed loading module \"%s\"",
+                              path->value.string);
+            }
         }
         else
-        {
             error_argument_type ("include", path->type, type_string);
-        }
     }
     return NULL;
 }
@@ -147,5 +149,21 @@ std_exit (scope_t **scope, node_t *arguments, node_t *statements)
     }
     else
         error_argument_count ("exit", arguments->children_count, 1);
+    return NULL;
+}
+
+node_t *
+std_system (scope_t **scope, node_t *arguments, node_t *statements)
+{
+    if (arguments->children_count == 1)
+    {
+        node_t *command = node_evaluate (scope, arguments->children[ 0 ]);
+        if (command->type == type_string)
+            return node_new_number (NULL, system (command->value.string));
+        else
+            error_argument_type ("system", command->type, type_string);
+    }
+    else
+        error_argument_count ("system", arguments->children_count, 1);
     return NULL;
 }

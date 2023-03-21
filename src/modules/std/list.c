@@ -137,7 +137,9 @@ std_list_do (scope_t **scope, node_t *arguments, node_t *statements)
             sym->node = node_copy (b->children[ i ]);
             node_evaluate (scope, statements);
         }
+        node_t *node_return = scope[ 0 ]->node_return;
         *scope = scope_pop (*scope);
+        scope[ 0 ]->node_return = node_return;
     }
     else
         error_argument_count ("list.do", arguments->children_count, 2);

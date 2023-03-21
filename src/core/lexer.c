@@ -134,10 +134,40 @@ lexer_check (lexer_result_t *lexer_result)
 
     for (u32 i = 0; i < lexer_result->count; i++)
     {
+        if (lexer_result->entries[ i ].type == type_key
+            && strcmp (lexer_result->entries[ i ].content, "(") == 0)
+        {
+            brackets_count_normal++;
+        }
+        else if (lexer_result->entries[ i ].type == type_key
+                 && strcmp (lexer_result->entries[ i ].content, ")") == 0)
+        {
+            brackets_count_normal--;
+        }
+        else if (lexer_result->entries[ i ].type == type_key
+                 && strcmp (lexer_result->entries[ i ].content, "[") == 0)
+        {
+            brackets_count_square++;
+        }
+        else if (lexer_result->entries[ i ].type == type_key
+                 && strcmp (lexer_result->entries[ i ].content, "]") == 0)
+        {
+            brackets_count_square--;
+        }
+        else if (lexer_result->entries[ i ].type == type_key
+                 && strcmp (lexer_result->entries[ i ].content, "{") == 0)
+        {
+            brackets_count_curly++;
+        }
+        else if (lexer_result->entries[ i ].type == type_key
+                 && strcmp (lexer_result->entries[ i ].content, "}") == 0)
+        {
+            brackets_count_curly--;
+        }
     }
 
     if (brackets_count_normal != 0 || brackets_count_square != 0
-        || brackets_count_curly)
+        || brackets_count_curly != 0)
         return false;
     return true;
 }

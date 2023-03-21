@@ -1,0 +1,14 @@
+active = 1;
+console.println("Type exit to quit")
+while(active)
+{
+	command = console.readln("Enter a command: ");
+	if(command == "exit")
+	{
+		active = 0;
+	}
+	elif(1)
+	{
+		system(command);
+	}
+}

@@ -42,7 +42,7 @@ std_types_string (scope_t **scope, node_t *arguments, node_t *statements)
         else if (value->type == type_number)
         {
             char *buffer = xcalloc (64, sizeof (char));
-            sprintf (buffer, "%f", value->value.number);
+            sprintf (buffer, "%.2f", value->value.number);
             return node_new_string_raw (NULL, buffer);
         }
         else

@@ -1,0 +1,35 @@
+include("modules/gfx.um");
+
+window = gfx.window(800, 600, "draw", 0);
+circles = list();
+radius = 8;
+
+input = function()
+{
+	mouse = gfx.mouse(window);
+	if(equal(mouse:2, 1))
+	{
+		list.append(circles, list(mouse:0, mouse:1));
+	}
+}
+
+display = function()
+{
+	gfx.clear(window, gfx.color(255,255,255));
+	list.do(i, circles)
+	{
+		gfx.circle(window, i:0, i:1, radius, gfx.color(0,0,0));
+	}
+	gfx.update(window);
+}
+
+main = function()
+{
+	while(gfx.closed(window) == 0)
+	{
+		input();
+		display();
+ 	}
+}
+
+main();
