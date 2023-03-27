@@ -114,6 +114,7 @@ void symbol_delete (symbol_t *sym);
 scope_t *scope_push (scope_t *scope);
 scope_t *scope_pop (scope_t *scope);
 void scope_add (scope_t *scope, symbol_t *symbol);
+scope_t *scope_get_global (scope_t *scope);
 symbol_t *scope_lookup (scope_t *scope, char *label);
 
 void error_argument_count (char *symbol, u32 got, u32 expected);

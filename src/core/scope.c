@@ -33,6 +33,14 @@ scope_add (scope_t *scope, symbol_t *symbol)
     scope->symbols[ scope->symbols_count++ ] = symbol;
 }
 
+scope_t *
+scope_get_global (scope_t *scope)
+{
+    if (scope->previous)
+        return scope_get_global (scope->previous);
+    return scope;
+}
+
 symbol_t *
 scope_lookup (scope_t *scope, char *label)
 {
@@ -42,7 +50,7 @@ scope_lookup (scope_t *scope, char *label)
             return scope->symbols[ i ];
     }
     if (scope->previous)
-        return scope_lookup (scope->previous, label);
+        return scope_lookup (scope_get_global (scope->previous), label);
 
     return NULL;
 }

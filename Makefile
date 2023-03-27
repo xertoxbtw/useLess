@@ -3,7 +3,11 @@ CORE-FILES := ./src/core/core.c ./src/core/node.c ./src/core/evaluate.c ./src/co
 CFLAGS := -lgc -ldl -g3 # -fsanitize=address,undefined
 MODULES-PATH := ./modules
 
-all: build-runtime build-std
+all: build-runtime build-std build-internal build-gfx
+
+clear:
+	rm ./src/modules/gfx/tigr.*
+	rm runtime
 
 build-runtime:
 	$(CC) ./src/main.c $(CORE-FILES) -o runtime $(CFLAGS)
