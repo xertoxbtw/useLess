@@ -3,10 +3,11 @@ CORE-FILES := ./src/core/core.c ./src/core/node.c ./src/core/evaluate.c ./src/co
 CFLAGS := -lgc -ldl -g3 # -fsanitize=address,undefined
 MODULES-PATH := ./modules
 
-all: build-runtime build-std build-internal build-gfx
+all: build-runtime build-std build-gfx
 
 clear:
 	rm ./src/modules/gfx/tigr.*
+	rm ./modules/ -r
 	rm runtime
 
 build-runtime:
@@ -15,10 +16,6 @@ build-runtime:
 build-std:
 	mkdir modules -p
 	$(CC) ./src/modules/std/*.c $(CORE-FILES) -shared -fPIC -o $(MODULES-PATH)/std.um  $(CFLAGS) -lm
-
-build-internal:
-	mkdir modules -p
-	$(CC) ./src/modules/internal/*.c $(CORE-FILES) -shared -fPIC -o $(MODULES-PATH)/internal.um $(CFLAGS)
 
 build-gfx:
 	mkdir modules -p

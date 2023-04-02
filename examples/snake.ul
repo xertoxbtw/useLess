@@ -108,7 +108,7 @@ display = function ()
 	}
 
 	gfx.rect(window, food_x * square_size, food_y * square_size, square_size, square_size, gfx.color(0,128,255));
-	gfx.print(window, 10, 10, gfx.color(128), string.append("Score: ", string(length(body))));
+	gfx.print(window, 10, 10, gfx.color(255,255,255), string.append("Score: ", string(length(body))));
 	gfx.update(window);
 };
 

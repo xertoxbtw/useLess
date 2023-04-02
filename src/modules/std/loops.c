@@ -29,7 +29,6 @@ std_dotimes (scope_t **scope, node_t *arguments, node_t *statements)
         node_t *times = node_evaluate (scope, arguments->children[ 1 ]);
         if (var->type == type_symbol && times->type == type_number)
         {
-            *scope = scope_push (*scope);
             symbol_t *sym
                 = symbol_create (var->value.string, node_new_number (NULL, 0));
             scope_add (*scope, sym);
@@ -42,9 +41,6 @@ std_dotimes (scope_t **scope, node_t *arguments, node_t *statements)
 
                 node_evaluate (scope, statements);
             }
-            node_t *node_return = scope[ 0 ]->node_return;
-            *scope = scope_pop (*scope);
-            scope[ 0 ]->node_return = node_return;
         }
         else
         {
@@ -62,7 +58,6 @@ std_dotimes (scope_t **scope, node_t *arguments, node_t *statements)
         if (var->type == type_symbol && min->type == type_number
             && max->type == type_number)
         {
-            *scope = scope_push (*scope);
             symbol_t *sym
                 = symbol_create (var->value.string, node_new_number (NULL, 0));
             scope_add (*scope, sym);
@@ -76,9 +71,6 @@ std_dotimes (scope_t **scope, node_t *arguments, node_t *statements)
 
                 node_evaluate (scope, statements);
             }
-            node_t *node_return = scope[ 0 ]->node_return;
-            *scope = scope_pop (*scope);
-            scope[ 0 ]->node_return = node_return;
         }
         else
         {

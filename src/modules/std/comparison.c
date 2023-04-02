@@ -19,11 +19,7 @@ std_if (scope_t **scope, node_t *arguments, node_t *statements)
     scope[ 0 ]->flag_if_failed = !isTrue;
     if (isTrue)
     {
-        scope[ 0 ] = scope_push (scope[ 0 ]);
         node_t *result_a = node_evaluate (scope, statements);
-        node_t *result_b = scope[ 0 ]->node_return;
-        scope[ 0 ] = scope_pop (scope[ 0 ]);
-        scope[ 0 ]->node_return = result_b;
         return result_a;
     }
 
@@ -50,11 +46,7 @@ std_elif (scope_t **scope, node_t *arguments, node_t *statements)
     scope[ 0 ]->flag_if_failed = !isTrue;
     if (isTrue)
     {
-        scope[ 0 ] = scope_push (scope[ 0 ]);
         node_t *result_a = node_evaluate (scope, statements);
-        node_t *result_b = scope[ 0 ]->node_return;
-        scope[ 0 ] = scope_pop (scope[ 0 ]);
-        scope[ 0 ]->node_return = result_b;
         return result_a;
     }
 
